@@ -26,9 +26,8 @@ export function useOnboarding() {
     const next = steps[currentIndex + 1];
     if (next) {
       localStorage.setItem("onboardingStep", next);
-      router.push(
-        `/${next === "success" ? "success" : `(onboarding)/${next}`}`
-      );
+      // Remove (onboarding) from URL - route groups are not part of URLs
+      router.push(`/${next}`);
     }
   };
 
@@ -36,7 +35,7 @@ export function useOnboarding() {
     const prev = steps[currentIndex - 1];
     if (prev) {
       localStorage.setItem("onboardingStep", prev);
-      router.push(`/(onboarding)/${prev}`);
+      router.push(`/${prev}`);
     }
   };
 
