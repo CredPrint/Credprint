@@ -1,0 +1,82 @@
+// prisma/schema.prisma
+
+// This tells Prisma to use the 'prisma-client-js' generator
+generator client {
+  provider = "prisma-client-js"
+}
+
+// This block defines your database connection.
+datasource db {
+  provider = "postgresql"
+  // This is the CRITICAL change:
+  // It tells Prisma to use your DIRECT_URL for commands like 'migrate'
+  url      = env("DIRECT_URL")
+}
+
+// Links to your Clerk User
+model User {
+  id    String @id @unique // Clerk's userId
+  email String @unique
+  phone String? @unique
+
+  dataConsent  DataConsent?
+  rawData      RawData[]
+  transactions Transaction[]
+  creditScores CreditScore[]
+  credBadges   CredBadge[]
+}
+
+model DataConsent {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  grantedSources String[] // e.g., ["sms", "opay_csv"]
+  timestamp      DateTime @default(now())
+}
+
+// Stores the user's UPLOADED file, encrypted
+model RawData {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  source    String // "sms_txt", "opay_pdf", "palmpay_csv"
+  content   String // The ENCRYPTED raw data
+  createdAt DateTime @default(now())
+}
+
+// Stores the PARSED data from RawData
+model Transaction {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  timestamp     DateTime
+  amount        Float
+  type          String // "debit" or "credit"
+  description   String
+  sourceDataId  String // Links back to RawData
+
+  @@index([userId, timestamp])
+}
+
+// Stores the final score
+model CreditScore {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  score     Int // The 0-100 score
+  insights  Json // PRD: "Score Insights Dashboard"
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+// The shareable badge
+model CredBadge {
+  id        String   @id @default(cuid())
+  publicId  String   @unique @default(cuid()) // For the public QR link
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  score     Int
+  metadata  Json // {"name": "User Name", "verifiedOn": "2025-11-06"}
+  createdAt DateTime @default(now())
+}
