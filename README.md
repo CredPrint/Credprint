@@ -1,6 +1,19 @@
+<!-- Banner -->
+<p align="center">
+	<img src="/brand-banner.svg" alt="CredPrint banner" width="880" />
+</p>
+
 # CredPrint
 
-🔒 CredPrint is an inclusive alternative credit identity system built to help users prove financial credibility using alternative data sources (SMS transaction alerts, mobile wallet exports, CSVs). This README documents the project structure, local development flow, and backend details so engineers can quickly get productive.
+<p align="center">
+	<img src="https://img.shields.io/badge/Next.js-%23100000.svg?style=flat&logo=next.js&logoColor=white" alt="Next.js" />
+	<img src="https://img.shields.io/badge/Prisma-%2344CCF6.svg?style=flat&logo=prisma" alt="Prisma" />
+	<img src="https://img.shields.io/badge/Supabase-%2336B37E.svg?style=flat&logo=supabase" alt="Supabase" />
+	<img src="https://img.shields.io/badge/Clerk-%23007ACC.svg?style=flat&logo=clerk" alt="Clerk" />
+	<img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT" />
+</p>
+
+> 🔒 CredPrint is an inclusive alternative credit identity system that helps users prove financial credibility using alternative data sources (SMS transaction alerts, mobile wallet exports, CSVs). This README focuses on developer and contributor workflows, architecture, and troubleshooting.
 
 ---
 
@@ -24,83 +37,70 @@
 
 ---
 
-## About
+## About ✨
 
-CredPrint converts user-provided transaction data into an alternative credit score and a shareable CredBadge that users can present to landlords, lenders, or employers. The system focuses on privacy, encryption at rest, and minimal onboarding friction.
+CredPrint converts user-provided transaction data into an alternative credit score and a shareable CredBadge that users can present to landlords, lenders, or employers. The system emphasizes privacy, encryption at rest, and minimal onboarding friction for users without traditional banking credentials.
 
-## Project status
+## Project status 🔭
 
-- MVP features implemented: onboarding flow, upload/parse routes (stubs), scoring core, CredBadge model and API hooks.
-- Work remaining: full upload parsers (CSV/CSV exports), production-ready scoring algorithms, integration tests, and CI for migrations.
+- MVP: onboarding flow, upload route stubs, scoring core, CredBadge model and basic API hooks.
+- Work remaining: full upload parsers (CSV/exports), production scoring logic, integration tests, CI for migrations, and production hardening.
 
-## Tech stack
+## Tech stack 🧰
 
 - Frontend: Next.js (App Router) + React
-- Backend: Next.js API routes (server code) + Node.js runtime
-- Database: PostgreSQL (Supabase recommended for hosting)
+- Backend: Next.js server components & API routes (Node.js)
+- Database: PostgreSQL (Supabase recommended)
 - ORM: Prisma
-- Auth: Clerk (authentication & session management)
+- Auth: Clerk
 - Styling: TailwindCSS
-- Security: AES-256-GCM encryption for user-uploaded data (Node.js crypto)
+- Security: AES-256-GCM encryption (Node.js crypto)
 
 ---
 
-## Architecture overview
+## Architecture overview 🏗️
 
-- The app is a Next.js monorepo-style project. Frontend and server (API routes) share the same codebase.
-- Prisma is the single source of truth for database models (see `prisma/schema.prisma`).
-- Authentication is managed by Clerk — server and client components request user info via Clerk SDKs.
-- Sensitive raw data (uploaded files) are encrypted before being persisted to the DB.
+- Single Next.js codebase containing frontend pages and server route handlers.
+- Prisma schema drives the DB models (`prisma/schema.prisma`).
+- Clerk provides auth for client and server.
+- Uploaded raw data is encrypted before persistence and stored as encrypted blobs.
 
 ---
 
-## Project structure (important files)
-
-Root key folders/files (short descriptions):
+## Project structure (important files) 📂
 
 ```
-/ (repository root)
-├─ prisma/                     # Prisma schema & migrations
-│  ├─ schema.prisma            # Database models
-│  └─ migrations/              # SQL migration history
+/ (repo root)
+├─ prisma/                    # Prisma schema & migrations
+├─ public/                    # Static assets (icons, images)
 ├─ src/
-│  ├─ app/                     # Next.js App Router pages & route handlers
-│  │  ├─ (auth)/               # Clerk sign-in/sign-up pages
-│  │  ├─ (onboarding)/         # Multi-step onboarding (upload, score)
-│  │  │  ├─ upload-data/       # POST route for uploads (route.ts)
-│  │  │  └─ generate-score/    # POST route that triggers scoring
-│  │  └─ dashboard/            # User dashboard pages
-│  ├─ components/              # Reusable UI components
-│  ├─ lib/                     # Server utilities (db, scoring, parsing)
-│  │  ├─ db.ts                 # Prisma client singleton (exported `prisma`)
-│  │  ├─ scoring.service.ts    # Scoring business logic
-│  │  └─ validation.ts         # Zod / server-side validators
-│  └─ middleware.ts            # Clerk middleware & auth helpers
-├─ public/                     # Static assets (icons, images)
-├─ .env                        # Local environment variables (gitignored)
-├─ next.config.ts              # Next.js configuration
-└─ package.json                # Dependencies & scripts
+│  ├─ app/                    # Next.js App Router (pages & route handlers)
+│  │  ├─ (auth)/              # Clerk sign-in / sign-up
+│  │  ├─ (onboarding)/        # Upload, parse, score routes & pages
+│  │  └─ dashboard/           # User dashboard
+│  ├─ components/             # Reusable UI components
+│  └─ lib/                    # Server utilities (db, scoring, parsing)
+├─ .env                       # Local environment variables (gitignored)
+└─ package.json               # Dependencies & scripts
 ```
-
-Note: Use backticks (`) when referencing filenames in code or docs.
 
 ---
 
-## Environment variables (required)
+## Environment variables (required) 🔑
 
 Create a `.env` in the project root. DO NOT commit it.
 
 Required variables:
 
-- NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY - Clerk publishable key for client-side auth
-- CLERK_SECRET_KEY - Clerk server-side secret (used by server code)
-- DATABASE_URL - Primary (pooler) Postgres connection used at runtime (pgbouncer)
-- DIRECT_URL - Direct Postgres connection used for migrations (no pooler)
-- ENCRYPTION_KEY - 64-character hex string (32 bytes) used for AES-256-GCM
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — Clerk publishable key (client)
+- `CLERK_SECRET_KEY` — Clerk server secret
+- `DATABASE_URL` — Primary runtime Postgres connection (pooler)
+- `DIRECT_URL` — Direct Postgres connection used for migrations
+- `ENCRYPTION_KEY` — 64-character hex (32 bytes) for AES-256-GCM
 
-Example (.env template):
+Example:
 
-```
+```bash
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_XXXX
 CLERK_SECRET_KEY=sk_test_YYYY
 DATABASE_URL="postgresql://postgres:password@host:6543/postgres?pgbouncer=true"
@@ -109,12 +109,13 @@ ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
 ```
 
 Security tips:
-- If your password contains special characters, URL-encode them (e.g., `@` -> `%40`).
-- Keep `.env` out of version control. Use environment-specific secrets managers for production.
+
+- URL-encode special characters in passwords (e.g., `@` → `%40`).
+- Use secrets managers for production; never commit `.env` to git.
 
 ---
 
-## Local development (quick start)
+## Local development (quick start) ▶️
 
 1. Install dependencies
 
@@ -122,15 +123,15 @@ Security tips:
 npm install
 ```
 
-2. Prepare `.env` (see variables above).
+2. Create `.env` and populate required variables.
 
-3. Generate Prisma client (run after you create `.env` so `DATABASE_URL` is available):
+3. Generate Prisma client:
 
 ```bash
 npx prisma generate
 ```
 
-4. Create local migrations / apply to DB (if using remote Postgres or Supabase confirm credentials first). For local development you can use SQLite — see the next section for a SQLite option.
+4. Create or apply migrations (confirm credentials first):
 
 ```bash
 npx prisma migrate dev --name init
@@ -142,54 +143,75 @@ npx prisma migrate dev --name init
 npm run dev
 ```
 
-Visit http://localhost:3000
+Open http://localhost:3000
 
 ---
 
-## Database options and local dev with SQLite
+## Database options and local dev with SQLite 🗄️
 
-If you prefer not to connect to a remote Postgres during development, change `prisma/schema.prisma` datasource to SQLite:
+If you want to avoid remote Postgres for local development, switch the Prisma datasource to SQLite and set `DATABASE_URL="file:./dev.db"` in `.env`.
 
-```prisma
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-```
+---
 
-Then set in `.env`:
+## Authentication (Clerk) 🔐
 
-```
-DATABASE_URL="file:./dev.db"
-```
+- Clerk is initialized in `src/app/layout.tsx` and used via `useUser`, `SignIn`, `SignUp` and server helpers.
+- Missing Clerk keys can break builds (prerender). Provide test keys in CI or guard initialisation.
 
-Run migrations locally and generate client:
+---
+
+## Security & encryption 🛡️
+
+- Raw uploads are encrypted with AES-256-GCM. The helpers live in `src/lib` and use `ENCRYPTION_KEY`.
+- Plan key rotation; consider key IDs and re-encryption strategies.
+
+---
+
+## Testing ✅
+
+- Recommended: unit tests for `scoring.service` and integration tests for `upload-data` and `generate-score` routes (use SQLite or a test DB).
+- Suggested setup: Jest + Testing Library.
+
+---
+
+## Deployment 🚀
+
+- Deploy like a standard Next.js App Router app (Vercel recommended).
+- Ensure env vars (Clerk keys, DB credentials, ENCRYPTION_KEY) are set in production.
+- Run migrations in CI/CD using `DIRECT_URL`:
 
 ```bash
-npx prisma migrate dev --name init
-npx prisma generate
+npx prisma migrate deploy
 ```
 
-This creates `dev.db` in the repo; add it to `.gitignore` if desired.
+---
+
+## Contributing 🤝
+
+PR checklist:
+
+- [ ] Run TypeScript checks: `npx tsc --noEmit`
+- [ ] Run linter: `npm run lint`
+- [ ] Add tests for new behavior
 
 ---
 
-## Authentication (Clerk)
+## Troubleshooting 🩺
 
-- Clerk is configured in `src/app/layout.tsx` and used across components with `useUser`, `SignIn`, and `SignUp` components.
-- Build-time errors (prerender) may occur if Clerk environment variables are missing. For CI/builds without secrets, either provide test keys or guard Clerk initialisation to skip server-side operations when keys are not present.
-
----
-
-## Security & encryption
-
-- Uploaded raw data is encrypted at rest using AES-256-GCM. The encryption/decryption helpers are implemented in `src/lib` and use `ENCRYPTION_KEY` from the environment.
-- Make sure `ENCRYPTION_KEY` is kept secret and rotated as necessary. For rotation you must re-encrypt stored data or support multiple keys with a key-id metadata field.
+- P1013 invalid DB URL: remove stray `?` after password and URL-encode special characters.
+- P1000 auth failed: verify DB credentials and network access.
+- Clerk build errors: supply `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` or guard server components.
 
 ---
 
-## Testing
+## License 📄
 
-*** Begin Patch
-*** End Patch
-  - Integration tests for `upload-data` and `generate-score` routes using a test database (or SQLite-based fixtures)
+MIT © CredPrint
+
+# CredPrint
+
+🔒 CredPrint is an inclusive alternative credit identity system built to help users prove financial credibility using alternative data sources (SMS transaction alerts, mobile wallet exports, CSVs). This README documents the project structure, local development flow, and backend details so engineers can quickly get productive.
+
+---
+
+## Table of contents 📚
