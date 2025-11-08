@@ -1,102 +1,86 @@
-// src/app/(onboarding)/step3/page.tsx
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import Image from "next/image";
-
+import { useState } from "react";
 import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
-import FileUpload from "@/src/components/forms/FileUpload";
+import ProgressCircle from "@/src/components/ui/ProgressCircle";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
+import { Check } from "lucide-react";
 
-// -------------------------------------------------
-// 1. Zod schema – validates the base64 string
-// -------------------------------------------------
-const schema = z.object({
-  statement: z
-    .string()
-    .min(1, "Please upload your transaction history")
-    .refine(
-      // Updated regex to include text/csv/plain for .txt and .csv files
-      (val) => /^data:(application\/pdf|text\/(csv|plain)|image\/(jpeg|png));base64,/.test(val),
-      "Only PDF, CSV, TXT, JPG or PNG files are allowed"
-    ),
-});
+export const dynamic = "force-dynamic";
 
-// -------------------------------------------------
-// 2. Page component
-// -------------------------------------------------
-export const dynamic = "force-dynamic"; // ← disables static prerender
-
-export default function Step3() {
+export default function Step8() {
   const { goNext } = useOnboarding();
+  const [isConnecting, setIsConnecting] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: { statement: undefined },
-  });
+  const handleConnect = async () => {
+    try {
+      setIsConnecting(true);
+      
+      // Call the backend API to run the scoring engine
+      const res = await fetch("/api/onboarding/generate-score", {
+         method: "POST"
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Scoring generation failed");
+      }
 
-  const file = watch("statement");
-
-  const onSubmit = () => {
-    if (file) goNext();
+      // Success! Move to the final success screen.
+      goNext();
+    } catch (error: any) {
+       console.error("Scoring error:", error);
+       alert(`Failed to generate score: ${error.message}. Please try again.`);
+    } finally {
+       setIsConnecting(false);
+    }
   };
 
+  const verificationItems = [
+    "Transaction Data Uploaded",
+    "Wallet Provider Selected",
+    "Phone Confirmed",
+  ];
+
   return (
-    <OnboardingLayout currentStep={3}>
+    <OnboardingLayout currentStep={6}>
       <div className="flex flex-col items-center space-y-6">
-        {/* Illustration */}
-        <div className="w-full max-w-xs mb-4">
-          <Image
-            src="/images/Onstep3.png"
-            alt="Upload your transaction history"
-            width={300}
-            height={300}
-            className="w-full h-auto"
-          />
-        </div>
-
-        {/* Title and Subtitle - UPDATED for PRD Alignment */}
+        {/* Header */}
         <div className="text-center space-y-3">
-          <h1 className="text-2xl font-bold text-gray-900 px-4">
-            Upload Your Transaction History
+          <h1 className="text-2xl font-bold text-gray-900">
+            Review Your Information
           </h1>
-          <p className="text-gray-600 text-base px-6">
-            Export your data from Opay, PalmPay (as .csv/.pdf) or your SMS inbox (as .txt).
+          <p className="text-gray-600 text-base">
+            We're securely analyzing your data to build your profile.
           </p>
         </div>
 
-        {/* FileUpload uses proper MIME types internally */}
-        <FileUpload
-          name="statement"
-          control={control}
-          setValue={setValue}
-          label="Upload .pdf, .csv, or .txt"
-          accept=".pdf,.csv,.txt,.jpg,.jpeg,.png"
-        />
+        {/* Progress Circle */}
+        <div className="my-8">
+          <ProgressCircle progress={isConnecting ? 95 : 85} />
+        </div>
 
-        {/* Show Zod error if any */}
-        {errors.statement && (
-          <p className="text-sm text-red-600 text-center">
-            {errors.statement.message}
-          </p>
-        )}
+        {/* Verification Checklist */}
+        <div className="w-full space-y-3 bg-gray-50 rounded-xl p-4">
+          {verificationItems.map((item) => (
+            <div key={item} className="flex items-center justify-between py-2">
+              <span className="text-sm font-medium text-gray-700">{item}</span>
+              <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                <Check className="w-4 h-4 text-white" strokeWidth={3} />
+              </div>
+            </div>
+          ))}
+        </div>
 
+        {/* Connect Button */}
         <Button
-          onClick={handleSubmit(onSubmit)}
-          disabled={!file}
-          className="w-full"
+          onClick={handleConnect}
+          disabled={isConnecting}
           size="lg"
+          className="w-full"
         >
-          Continue
+          {isConnecting ? "Analyzing Data..." : "Generate My Score"}
         </Button>
       </div>
     </OnboardingLayout>
