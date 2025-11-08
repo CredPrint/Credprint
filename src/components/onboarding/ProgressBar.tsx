@@ -1,7 +1,7 @@
 // components/ui/ProgressBar.tsx
 export default function ProgressBar({
   current,
-  total = 8,
+  total = 6,
 }: {
   current: number;
   total?: number;

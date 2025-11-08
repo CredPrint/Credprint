@@ -45,10 +45,7 @@ export const stepSchemas = {
   // Step 1: Just start → no validation
   step1: z.object({}),
 
-  // Step 2: Info → no form
-  step2: z.object({}),
-
-  // Step 3: Upload Bank Statement
+  // Step 3: Upload Bank Statement (now step 2 in compact flow)
   step3: z.object({
     statement: fileSchema.refine(
       (val) => {
@@ -59,33 +56,22 @@ export const stepSchemas = {
     ),
   }),
 
-  // Step 4: Select Wallet Provider
+  // Step 4: Select Wallet Provider (now step 3)
   step4: z.object({
     provider: walletProviderSchema,
   }),
 
-  // Step 5: Upload ID
-  step5: z.object({
-    id: fileSchema.refine(
-      (val) => {
-        const typePart = val.split(";")[0];
-        return /\.(pdf|jpe?g|png)$/i.test(typePart);
-      },
-      { message: "Only PDF, JPG, or PNG allowed" }
-    ),
-  }),
-
-  // Step 6: Enter Phone Number
+  // Step 6: Enter Phone Number (now step 4)
   step6: z.object({
     phone: phoneSchema,
   }),
 
-  // Step 7: Enter OTP
+  // Step 7: Enter OTP (now step 5)
   step7: z.object({
     otp: otpSchema,
   }),
 
-  // Step 8: Review → no input, just confirm
+  // Step 8: Review → no input, just confirm (now step 6)
   step8: z.object({}),
 };
 
@@ -96,7 +82,6 @@ export const stepSchemas = {
 export const fullOnboardingSchema = z.object({
   statement: stepSchemas.step3.shape.statement,
   provider: stepSchemas.step4.shape.provider,
-  id: stepSchemas.step5.shape.id,
   phone: stepSchemas.step6.shape.phone,
   otp: stepSchemas.step7.shape.otp,
 });
@@ -107,31 +92,27 @@ export const fullOnboardingSchema = z.object({
 export type OnboardingFormData = z.infer<typeof fullOnboardingSchema>;
 export type Step3Data = z.infer<typeof stepSchemas.step3>;
 export type Step4Data = z.infer<typeof stepSchemas.step4>;
-export type Step5Data = z.infer<typeof stepSchemas.step5>;
 export type Step6Data = z.infer<typeof stepSchemas.step6>;
 export type Step7Data = z.infer<typeof stepSchemas.step7>;
 
 /**
  * Get schema for current step
  */
+// Map compact onboarding step index (1..6) to the actual step schema
 export const getStepSchema = (step: number) => {
   switch (step) {
     case 1:
-      return stepSchemas.step1;
+      return stepSchemas.step1; // "step1"
     case 2:
-      return stepSchemas.step2;
+      return stepSchemas.step3; // former step3
     case 3:
-      return stepSchemas.step3;
+      return stepSchemas.step4; // former step4
     case 4:
-      return stepSchemas.step4;
+      return stepSchemas.step6; // former step6
     case 5:
-      return stepSchemas.step5;
+      return stepSchemas.step7; // former step7
     case 6:
-      return stepSchemas.step6;
-    case 7:
-      return stepSchemas.step7;
-    case 8:
-      return stepSchemas.step8;
+      return stepSchemas.step8; // former step8
     default:
       return z.object({});
   }
