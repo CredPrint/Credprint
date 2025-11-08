@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+CredPrint 🚀
 
-## Getting Started
+CredPrint is Nigeria's most inclusive alternative credit identity system. We enable anyone — even without a traditional bank account — to prove their financial credibility through digital and behavioral data from sources like mobile wallets, SMS transaction alerts, and more.
 
-First, run the development server:
+🌟 Features (MVP)
 
-```bash
+Alternative Data Scoring: We build a credit score based on real-life financial behavior (inflow frequency, spending stability) parsed from user-uploaded transaction history (SMS, wallet exports).
+
+No BVN/NIN Barrier: Our initial onboarding is frictionless, using email/phone verification to include the unbanked.
+
+CredBadge: A shareable, verifiable digital badge that proves a user's creditworthiness to landlords, lenders, and employers.
+
+Secure & Private: All sensitive user data is encrypted at rest using AES-256-GCM. We are built with NDPC compliance in mind.
+
+🛠️ Tech Stack
+
+Frontend: Next.js 15 (App Router), React 19, TailwindCSS
+
+Auth: Clerk
+
+Backend API: Next.js API Routes (Node.js runtime)
+
+Database: PostgreSQL (hosted on Supabase)
+
+ORM: Prisma
+
+Security: Node.js crypto for AES-256-GCM encryption
+
+🚀 Getting Started
+
+Prerequisites
+
+Node.js 18+
+
+npm or yarn
+
+A Supabase project (for the PostgreSQL database)
+
+A Clerk account (for authentication)
+
+Installation
+
+Clone the repository:
+
+git clone [https://github.com/your-username/credprint.git](https://github.com/your-username/credprint.git)
+cd credprint
+
+
+Install dependencies:
+
+npm install
+
+
+Set up environment variables:
+Create a .env file in the root directory and add the following keys. DO NOT commit this file to Git.
+
+# Clerk Authentication Keys
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# Supabase Database Connection (Get these from your Supabase dashboard)
+# Transaction Pooling URL (for the app)
+DATABASE_URL="postgresql://postgres.[project]:[password]@[aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true](https://aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true)"
+# Direct Connection URL (for migrations)
+DIRECT_URL="postgresql://postgres.[project]:[password]@[aws-0-region.pooler.supabase.com:5432/postgres](https://aws-0-region.pooler.supabase.com:5432/postgres)"
+
+# 32-byte Hex Encryption Key for User Data
+# Generate with: node -e "console.log(crypto.randomBytes(32).toString('hex'))"
+ENCRYPTION_KEY="your-64-char-hex-key-here"
+
+
+Run Database Migrations:
+This will create the necessary tables in your Supabase database.
+
+npx prisma migrate dev --name init
+
+
+Start the development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+
+Open http://localhost:3000 to view the app.
+
+📂 Project Structure
+
+credprint/
+├── prisma/
+│   ├── schema.prisma      # Database schema definition
+│   └── migrations/        # SQL migration files
+├── public/                # Static assets (images, icons)
+├── src/
+│   ├── app/
+│   │   ├── (auth)/        # Clerk sign-in/sign-up pages
+│   │   ├── (onboarding)/  # Multi-step onboarding flow
+│   │   ├── api/           # Backend API routes (upload, score, etc.)
+│   │   └── dashboard/     # User dashboard
+│   ├── components/        # Reusable UI components
+│   ├── hooks/             # Custom React hooks (e.g., useOnboarding)
+│   ├── lib/               # Backend utilities (db, security, parsing)
+│   └── middleware.ts      # Clerk auth middleware
+├── .env                   # Local environment variables (gitignored)
+├── next.config.ts         # Next.js configuration
+└── package.json           # Project dependencies
+
+
+http://googleusercontent.com/immersive_entry_chip/0
+
+## 🤝 Contributing
+
+We welcome contributions\! Please see our [CONTRIBUTING.md](https://www.google.com/search?q=CONTRIBUTING.md) for details on how to submit pull requests, report issues, and our code of conduct.
+
+## 📄 License
+
+This project is licensed under the MIT License -
+
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```

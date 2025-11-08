@@ -17,10 +17,11 @@ import { useOnboarding } from "@/src/hooks/useOnboarding";
 const schema = z.object({
   statement: z
     .string()
-    .min(1, "Please upload your bank statement")
+    .min(1, "Please upload your transaction history")
     .refine(
-      (val) => /^data:(application\/pdf|image\/(jpeg|png));base64,/.test(val),
-      "Only PDF, JPG or PNG files are allowed"
+      // Updated regex to include text/csv/plain for .txt and .csv files
+      (val) => /^data:(application\/pdf|text\/(csv|plain)|image\/(jpeg|png));base64,/.test(val),
+      "Only PDF, CSV, TXT, JPG or PNG files are allowed"
     ),
 });
 
@@ -56,20 +57,20 @@ export default function Step3() {
         <div className="w-full max-w-xs mb-4">
           <Image
             src="/images/Onstep3.png"
-            alt="Upload your bank statement"
+            alt="Upload your transaction history"
             width={300}
             height={300}
             className="w-full h-auto"
           />
         </div>
 
-        {/* Title and Subtitle */}
+        {/* Title and Subtitle - UPDATED for PRD Alignment */}
         <div className="text-center space-y-3">
           <h1 className="text-2xl font-bold text-gray-900 px-4">
-            Use your photo ID, selfie, and BVN to verify your identity
+            Upload Your Transaction History
           </h1>
           <p className="text-gray-600 text-base px-6">
-            This helps us confirm who you are
+            Export your data from Opay, PalmPay (as .csv/.pdf) or your SMS inbox (as .txt).
           </p>
         </div>
 
@@ -78,8 +79,8 @@ export default function Step3() {
           name="statement"
           control={control}
           setValue={setValue}
-          label="Upload PDF or Image"
-          accept=".pdf,.jpg,.jpeg,.png"
+          label="Upload .pdf, .csv, or .txt"
+          accept=".pdf,.csv,.txt,.jpg,.jpeg,.png"
         />
 
         {/* Show Zod error if any */}

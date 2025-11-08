@@ -22,10 +22,10 @@ export default function Step8() {
   };
 
   const verificationItems = [
-    "Bank Statement",
-    "ID Verified",
-    "Phone Confirmed",
-  ];
+  "Transaction Data Uploaded",
+  "Wallet Provider Selected",
+  "Phone Confirmed",
+];
 
   return (
     <OnboardingLayout currentStep={8}>
