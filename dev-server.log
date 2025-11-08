@@ -1,0 +1,79 @@
+
+> credprint@0.1.0 dev
+> next dev
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://10.0.1.54:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 761ms
+ ○ Compiling / ...
+ GET / 200 in 8.1s (compile: 7.8s, render: 291ms)
+ GET /step1 200 in 835ms (compile: 719ms, render: 116ms)
+ GET /step2 200 in 574ms (compile: 474ms, render: 101ms)
+Skipped ".pdf" because it is not a valid MIME type. Check https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types for a list of valid MIME types.
+Skipped ".pdf" because an invalid file extension was provided.
+Skipped ".jpg" because it is not a valid MIME type. Check https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types for a list of valid MIME types.
+Skipped ".jpg" because an invalid file extension was provided.
+Skipped ".jpeg" because it is not a valid MIME type. Check https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types for a list of valid MIME types.
+Skipped ".jpeg" because an invalid file extension was provided.
+Skipped ".png" because it is not a valid MIME type. Check https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types for a list of valid MIME types.
+Skipped ".png" because an invalid file extension was provided.
+ GET /step3 200 in 1855ms (compile: 1707ms, render: 148ms)
+ GET /step5 200 in 504ms (compile: 437ms, render: 68ms)
+Error: Clerk: auth() was called but Clerk can't detect usage of clerkMiddleware(). Please ensure the following:
+- Your Middleware exists at ./src/middleware.(ts|js)
+- clerkMiddleware() is used in your Next.js Middleware.
+- Your Middleware matcher is configured to match this route or page.
+- If you are using the src directory, make sure the Middleware file is inside of it.
+
+For more details, see https://clerk.com/err/auth-middleware
+
+    at async POST (src/app/(onboarding)/generate-score/route.ts:8:22)
+   6 |
+   7 | export async function POST(request: Request) {
+>  8 |   const { userId } = await auth();
+     |                      ^
+   9 |   if (!userId) return new Response("Unauthorized", { status: 401 });
+  10 |
+  11 |   try {
+ POST /generate-score 500 in 1663ms (compile: 1373ms, render: 289ms)
+Error: Clerk: auth() was called but Clerk can't detect usage of clerkMiddleware(). Please ensure the following:
+- Your Middleware exists at ./src/middleware.(ts|js)
+- clerkMiddleware() is used in your Next.js Middleware.
+- Your Middleware matcher is configured to match this route or page.
+- If you are using the src directory, make sure the Middleware file is inside of it.
+
+For more details, see https://clerk.com/err/auth-middleware
+
+    at async POST (src/app/(onboarding)/generate-score/route.ts:8:22)
+   6 |
+   7 | export async function POST(request: Request) {
+>  8 |   const { userId } = await auth();
+     |                      ^
+   9 |   if (!userId) return new Response("Unauthorized", { status: 401 });
+  10 |
+  11 |   try {
+ POST /generate-score 500 in 78ms (compile: 5ms, render: 73ms)
+Error: Clerk: auth() was called but Clerk can't detect usage of clerkMiddleware(). Please ensure the following:
+- Your Middleware exists at ./src/middleware.(ts|js)
+- clerkMiddleware() is used in your Next.js Middleware.
+- Your Middleware matcher is configured to match this route or page.
+- If you are using the src directory, make sure the Middleware file is inside of it.
+
+For more details, see https://clerk.com/err/auth-middleware
+
+    at async POST (src/app/(onboarding)/upload-data/route.ts:11:22)
+   9 |
+  10 | export async function POST(request: Request) {
+> 11 |   const { userId } = await auth();
+     |                      ^
+  12 |   if (!userId) return new Response("Unauthorized", { status: 401 });
+  13 |
+  14 |   // Data from frontend: file (base64) and source (Opay, PalmPay, etc.)
+ POST /upload-data 500 in 512ms (compile: 203ms, render: 308ms)
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ⨯ /src/middleware contains invalid middleware config: source must start with / at "matcher[2]"
+[?25h
