@@ -4,22 +4,23 @@
 
 ---
 
-## Table of contents
+## Table of contents 📚
 
-- About
-- Project status
-- Tech stack
-- Architecture overview
-- Project structure
-- Environment variables
-- Local development (quick start)
-- Database & Prisma
-- Authentication (Clerk)
-- Security & encryption
-- Testing
-- Deployment
-- Contributing
-- License
+- [About](#about) ✨
+- [Project status](#project-status) 🔭
+- [Tech stack](#tech-stack) 🧰
+- [Architecture overview](#architecture-overview) 🏗️
+- [Project structure (important files)](#project-structure-important-files) 📂
+- [Environment variables (required)](#environment-variables-required) 🔑
+- [Local development (quick start)](#local-development-quick-start) ▶️
+- [Database options and local dev with SQLite](#database-options-and-local-dev-with-sqlite) 🗄️
+- [Authentication (Clerk)](#authentication-clerk) 🔐
+- [Security & encryption](#security--encryption) 🛡️
+- [Testing](#testing) ✅
+- [Deployment](#deployment) 🚀
+- [Contributing](#contributing) 🤝
+- [Troubleshooting](#troubleshooting) 🩺
+- [License](#license) 📄
 
 ---
 
@@ -189,51 +190,6 @@ This creates `dev.db` in the repo; add it to `.gitignore` if desired.
 
 ## Testing
 
-- There are no automated tests in the repo by default. Recommended additions:
-  - Unit tests for `scoring.service` (happy path + edge cases)
+*** Begin Patch
+*** End Patch
   - Integration tests for `upload-data` and `generate-score` routes using a test database (or SQLite-based fixtures)
-
-Suggested test setup (Jest + Testing Library):
-
-```bash
-npm install -D jest @types/jest ts-jest @testing-library/react
-```
-
----
-
-## Deployment
-
-- This app builds as a standard Next.js app. For production we recommend deploying to Vercel or any provider that supports Next.js App Router.
-- Ensure production environment variables are configured in your hosting provider (Clerk keys, DATABASE_URL, DIRECT_URL, ENCRYPTION_KEY).
-- Run migration step as part of your CI/CD pipeline (using DIRECT_URL for production migrations):
-
-```bash
-npx prisma migrate deploy --preview-feature
-```
-
-> Note: Be careful applying migrations to production databases. Always test migrations against a staging environment first.
-
----
-
-## Contributing
-
-Thanks for contributing! Please open issues for bugs or feature requests. Use clear commit messages and include tests for new functionality.
-
-PR checklist:
-- [ ] Ran TypeScript checks (`npx tsc --noEmit`)
-- [ ] Ran `npm run lint` and fixed any issues
-- [ ] Added/updated tests if applicable
-
----
-
-## Troubleshooting
-
-- P1013 invalid port or connection string: ensure your `DATABASE_URL` is a valid Postgres URL. Remove stray `?` after password and URL-encode special characters.
-- P1000 authentication failed: verify DB username/password and network access (IP allowlists). Use `psql` to test connectivity.
-- Clerk build errors: provide `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` or guard server components.
-
----
-
-## License
-
-MIT © CredPrint
