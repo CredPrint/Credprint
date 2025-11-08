@@ -1,7 +1,5 @@
 <!-- Banner -->
-<p align="center">
-	<img src="/brand-banner.svg" alt="CredPrint banner" width="880" />
-</p>
+
 
 # CredPrint
 
