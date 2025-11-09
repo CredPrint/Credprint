@@ -53,9 +53,9 @@ export default function HeroSection() {
               threshold={0.2}
             >
               <p className="text-xl text-gray-600 leading-relaxed">
-                Build your digital credit identity in minutes. Access loans, track
-                your score, and unlock financial opportunities with Nigeria's most
-                trusted credit platform.
+                Build your digital credit identity in minutes. Access loans,
+                track your score, and unlock financial opportunities with
+                Nigeria's most trusted credit platform.
               </p>
             </AnimatedContent>
 
@@ -164,7 +164,7 @@ export default function HeroSection() {
                   priority
                 />
               </div>
-              
+
               {/* Floating Card */}
               <AnimatedContent
                 distance={40}
@@ -181,7 +181,9 @@ export default function HeroSection() {
                       <CheckCircle className="w-6 h-6 text-green-600" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Credit Score</p>
+                      <p className="font-semibold text-gray-900">
+                        Credit Score
+                      </p>
                       <p className="text-2xl font-bold text-green-600">750</p>
                     </div>
                   </div>
