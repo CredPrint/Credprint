@@ -1,4 +1,6 @@
-// app/(onboarding)/layout.tsx
+// ==========================================
+// FILE: src/app/(onboarding)/layout.tsx (FIXED)
+// ==========================================
 "use client";
 
 import ProgressBar from "@/src/components/onboarding/ProgressBar";
@@ -10,13 +12,19 @@ export default function OnboardingLayout({
 }: {
   children: ReactNode;
 }) {
+  // This hook is the single source of truth
   const { currentStep, totalSteps } = useOnboarding();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-light to-white p-4 flex flex-col items-center justify-center">
       <div className="w-full max-w-md space-y-6">
+        {/* 1. The Progress Bar */}
         <ProgressBar current={currentStep} total={totalSteps} />
-        {children}
+        
+        {/* 2. The White Card Wrapper */}
+        <div className="bg-white rounded-2xl shadow-sm p-6 space-y-6">
+          {children}
+        </div>
       </div>
     </div>
   );

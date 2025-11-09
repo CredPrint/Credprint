@@ -1,8 +1,10 @@
-// src/app/(onboarding)/step4/page.tsx
+// ==========================================
+// FILE: src/app/(onboarding)/step4/page.tsx (FIXED)
+// ==========================================
 "use client";
 
 import { useForm } from "react-hook-form";
-import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
+// import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout"; // <-- REMOVED
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
 import { cn } from "@/src/lib/utils";
@@ -21,7 +23,7 @@ export default function Step4() {
   };
 
   return (
-    <OnboardingLayout currentStep={4}>
+    // <OnboardingLayout currentStep={4}> {/* <-- REMOVED WRAPPER */}
       <div className="flex flex-col space-y-6">
         {/* Header */}
         <div className="text-center space-y-3">
@@ -93,6 +95,6 @@ export default function Step4() {
           Continue
         </Button>
       </div>
-    </OnboardingLayout>
+    // </OnboardingLayout> {/* <-- REMOVED WRAPPER */}
   );
 }
