@@ -5,6 +5,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { calculateCreditScore } from "@/src/lib/scoring.service";
 import { prisma } from "@/src/lib/db";
+import crypto from "crypto"; // <-- THIS IS THE FIX
 
 // --- PASTE THE SAME HELPER FUNCTION HERE ---
 async function getOrCreateUser() {
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
       data: {
         userId: user.id, // Use the non-null user.id
         score: score.score,
-        publicId: crypto.randomUUID(),
+        publicId: crypto.randomUUID(), // This line will now work
         metadata: { name: "User Name", verifiedOn: new Date().toISOString() },
       },
     });
