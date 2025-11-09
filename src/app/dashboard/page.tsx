@@ -1,5 +1,5 @@
 // ==========================================
-// 9. src/app/dashboard/page.tsx (Protected Dashboard)
+// FILE: src/app/dashboard/page.tsx (FIXED)
 // ==========================================
 "use client";
 
@@ -8,21 +8,34 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Dashboard() {
-  const { isSignedIn, user } = useUser();
+  // Get isLoaded to know when user object is ready
+  const { isSignedIn, user, isLoaded } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isSignedIn) {
+    // Wait for Clerk to be loaded before checking sign-in state
+    if (isLoaded && !isSignedIn) {
       router.push("/");
       return;
     }
 
-    // If user hasn't completed onboarding, redirect to step1
-    const hasCompletedOnboarding = user?.publicMetadata?.onboardingCompleted;
-    if (!hasCompletedOnboarding) {
-      router.push("/step1");
+    if (isLoaded && isSignedIn) {
+      const hasCompletedOnboarding = user?.publicMetadata?.onboardingCompleted;
+      if (!hasCompletedOnboarding) {
+        router.push("/step1");
+      }
     }
-  }, [isSignedIn, user, router]);
+  }, [isLoaded, isSignedIn, user, router]); // Add isLoaded
+
+  // --- ADD THIS LOADING CHECK ---
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading session...</p>
+      </div>
+    );
+  }
+  // --- END OF FIX ---
 
   if (!user?.publicMetadata?.onboardingCompleted) {
     return (
@@ -41,7 +54,8 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-600">
               Welcome,{" "}
-              {user?.firstName || user?.emailAddresses[0]?.emailAddress}!
+              {/* --- FIX: Safely access the email --- */}
+              {user?.firstName || user?.emailAddresses[0]?.emailAddress}
             </p>
           </div>
         </div>
