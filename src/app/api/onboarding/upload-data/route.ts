@@ -1,5 +1,5 @@
 // ==========================================
-// FILE: src/app/api/onboarding/upload-data/route.ts (Corrected)
+// FILE: src/app/api/onboarding/upload-data/route.ts (FIXED)
 // ==========================================
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -8,31 +8,31 @@ import { encrypt } from "@/src/lib/security";
 import { parseTransactions } from "@/src/lib/parsing.service";
 
 /**
- * This function ensures a user record exists in our local Prisma database
- * after they have authenticated with Clerk.
+ * This helper function gets the Clerk user and ensures they
+ * exist in our local Prisma database.
  */
 async function getOrCreateUser() {
-  // 1. Get auth data
-  const { userId } = auth();
-  const clerkUser = await currentUser();
+  const authResult = await auth();
+  if (!authResult.userId) {
+    throw new Error("Unauthorized: No user ID found.");
+  }
+  const userId = authResult.userId; // userId is now a string
 
-  if (!userId || !clerkUser) {
-    throw new Error("Unauthorized");
+  const clerkUser = await currentUser();
+  if (!clerkUser) {
+    throw new Error("Unauthorized: Clerk user details not found.");
   }
 
-  // 2. Check if user already exists in our DB
   let user = await prisma.user.findUnique({
     where: { id: userId },
   });
 
-  // 3. If not, create them
   if (!user) {
     console.log(`User ${userId} not found in DB. Creating...`);
     const email = clerkUser.emailAddresses[0]?.emailAddress;
     const phone = clerkUser.phoneNumbers[0]?.phoneNumber;
 
     if (!email) {
-      // Your schema requires email, so we must have it
       throw new Error("User has no primary email address in Clerk.");
     }
 
@@ -45,21 +45,13 @@ async function getOrCreateUser() {
     });
     console.log(`User ${userId} created in DB.`);
   }
-
-  // 4. Return the guaranteed non-null user from our DB
   return user;
 }
 
 export async function POST(request: Request) {
   try {
-    // --- THIS IS THE FIX ---
-    // 1. We call our new helper function.
-    // 'user' is now the full user object from our database, NOT the old `userId`
+    // This function now guarantees the user exists in our DB
     const user = await getOrCreateUser();
-
-    // 2. We NO LONGER need the old `const { userId } = auth()`
-    // or `if (!userId)` checks here, as the helper does it.
-    // --- END OF FIX ---
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -79,10 +71,7 @@ export async function POST(request: Request) {
 
     const rawData = await prisma.rawData.create({
       data: {
-        // --- THIS IS THE FIX ---
-        // We use `user.id` (which is a string)
-        // This is why your editor was underlining `userId` (which was string | null)
-        userId: user.id,
+        userId: user.id, // This will now succeed
         source,
         content: encryptedContent,
       },
@@ -100,7 +89,7 @@ export async function POST(request: Request) {
       await prisma.transaction.createMany({
         data: transactions.map((tx) => ({
           ...tx,
-          userId: user.id, // <-- Also use user.id here
+          userId: user.id,
           sourceDataId: rawData.id,
         })),
       });

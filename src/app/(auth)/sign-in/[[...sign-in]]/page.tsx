@@ -7,8 +7,7 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-white p-4">
       <SignIn
-        // FIX: 'fallbackRedirectUrl' replaces 'afterSignInUrl'
-        fallbackRedirectUrl="/step1"
+        fallbackRedirectUrl="/step1" // FIX: Replaces 'afterSignInUrl'
         appearance={{
           elements: {
             rootBox: "mx-auto",
