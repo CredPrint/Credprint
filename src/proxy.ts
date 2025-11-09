@@ -1,4 +1,7 @@
-// src/middleware.ts
+// ==========================================
+// FILE: src/proxy.ts (New file, replaces middleware.ts)
+// ==========================================
+// src/proxy.ts
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
 // Define which routes are protected.
