@@ -5,16 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
 import { useState } from "react";
-
 import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
 import FileUpload from "@/src/components/forms/FileUpload";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
 
 const schema = z.object({
-  statement: z
-    .string()
-    .min(1, "Please upload your transaction history")
+  statement: z.string().min(1, "Please upload your transaction history")
 });
 
 export const dynamic = "force-dynamic";
@@ -22,15 +19,7 @@ export const dynamic = "force-dynamic";
 export default function Step3() {
   const { goNext } = useOnboarding();
   const [isUploading, setIsUploading] = useState(false);
-
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-    getValues,
-    formState: { errors },
-  } = useForm<z.infer<typeof schema>>({
+  const { control, handleSubmit, setValue, watch, getValues, formState: { errors } } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: { statement: undefined },
   });
@@ -43,31 +32,23 @@ export default function Step3() {
 
     try {
       setIsUploading(true);
-
-      // 1. Convert Data URL to Blob
       const res1 = await fetch(fileDataUrl);
       const blob = await res1.blob();
-      
-      // 2. Prepare FormData
       const formData = new FormData();
       formData.append("file", blob, "statement");
       formData.append("source", "generic_upload");
       
-      // 3. Send to API - NO manual Content-Type header!
+      // CORRECTED FETCH CALL - NO CONTENT-TYPE HEADER
       const res = await fetch("/api/onboarding/upload-data", {
         method: "POST",
-        body: formData, 
+        body: formData,
       });
 
       if (!res.ok) {
         let errorMessage = `Upload failed with status: ${res.status}`;
-        try {
-            const data = await res.json();
-            if (data.error) errorMessage = data.error;
-        } catch (e) {}
+        try { const data = await res.json(); if (data.error) errorMessage = data.error; } catch (e) {}
         throw new Error(errorMessage);
       }
-      
       goNext();
     } catch (error: any) {
       console.error("Upload error:", error);
@@ -88,7 +69,7 @@ export default function Step3() {
           <p className="text-gray-600 text-base px-6">Export data from your wallet app or SMS inbox.</p>
         </div>
         <FileUpload name="statement" control={control} setValue={setValue} label="Upload PDF, CSV, or TXT" accept=".pdf,.csv,.txt" />
-        {errors.statement && <p className="text-sm text-red-600">{errors.statement.message}</p>}
+        {errors.statement && <p className="text-sm text-red-600 text-center">{errors.statement.message}</p>}
         <Button onClick={handleSubmit(onSubmit)} disabled={!file || isUploading} className="w-full" size="lg">
           {isUploading ? "Uploading..." : "Continue"}
         </Button>
