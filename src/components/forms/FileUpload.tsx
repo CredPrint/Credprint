@@ -1,4 +1,6 @@
-// src/components/forms/FileUpload.tsx
+// ==========================================
+// FILE: src/components/forms/FileUpload.tsx (FIXED)
+// ==========================================
 "use client";
 
 import { useDropzone } from "react-dropzone";
@@ -9,6 +11,7 @@ interface FileUploadProps {
   name: string;
   control: any;
   setValue: any;
+  value?: string; // <-- 1. ADD THIS PROP
   label: string;
   accept?: string; // e.g. ".pdf,.jpg,.png"
 }
@@ -17,6 +20,7 @@ export default function FileUpload({
   name,
   control,
   setValue,
+  value, // <-- 2. USE THE NEW PROP
   label,
   accept = ".pdf,.jpg,.jpeg,.png",
 }: FileUploadProps) {
@@ -30,30 +34,40 @@ export default function FileUpload({
   };
 
   // Map extensions → real MIME types
+  // (Using the corrected logic from our previous fix)
   const mimeMap: Record<string, string[]> = {
     ".pdf": ["application/pdf"],
     ".jpg": ["image/jpeg"],
     ".jpeg": ["image/jpeg"],
     ".png": ["image/png"],
+    ".csv": ["text/csv"],
+    ".txt": ["text/plain"],
   };
 
   const acceptObj = accept.split(",").reduce((obj, ext) => {
     const key = ext.trim().toLowerCase();
-    if (mimeMap[key]) obj[key] = mimeMap[key];
+    if (mimeMap[key]) {
+      mimeMap[key].forEach(mimeType => {
+        if (!obj[mimeType]) {
+          obj[mimeType] = [];
+        }
+        obj[mimeType].push(key);
+      });
+    }
     return obj;
   }, {} as Record<string, string[]>);
-
+  
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: acceptObj,
     multiple: false,
   });
 
-  const value = control._formValues?.[name];
+  // const value = control._formValues?.[name]; // <-- 3. REMOVE THIS ERROR LINE
 
   return (
     <div>
-      {value ? (
+      {value ? ( // <-- 4. 'value' is now the prop
         <div className="border-2 border-dashed border-green-200 rounded-xl p-4 text-center">
           {value.startsWith("data:image") ? (
             <Image
