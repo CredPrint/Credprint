@@ -5,7 +5,6 @@
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-// import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout"; // <-- REMOVED
 import OTPInput from "@/src/components/forms/OTPInput";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
@@ -19,7 +18,8 @@ export default function Step6() {
   const [codeSent, setCodeSent] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  const email = user?.emailAddresses[0];
+  // FIX: Use optional chaining on the array access `?.[0]`
+  const email = user?.emailAddresses?.[0];
 
   const handleSendCode = async () => {
     if (!email) {
@@ -65,7 +65,6 @@ export default function Step6() {
   };
 
   if (!isLoaded) {
-    // The wrapper is gone. Just return the content.
     return (
       <div className="text-center p-4">
         <p>Loading user...</p>
@@ -74,7 +73,6 @@ export default function Step6() {
   }
 
   if (!email) {
-    // The wrapper is gone.
     return (
       <div className="text-center p-4 space-y-3">
          <h1 className="text-2xl font-bold text-red-600">Error</h1>
@@ -83,7 +81,6 @@ export default function Step6() {
     );
   }
 
-  // The wrapper is gone.
   return (
     <div className="flex flex-col space-y-6">
       {/* Header */}
