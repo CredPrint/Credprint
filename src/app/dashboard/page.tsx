@@ -1,5 +1,5 @@
 // ==========================================
-// FILE: src/app/dashboard/page.tsx (FIXED)
+// FILE: src/app/dashboard/page.tsx
 // ==========================================
 "use client";
 
@@ -8,12 +8,11 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Dashboard() {
-  // Get isLoaded to know when user object is ready
-  const { isSignedIn, user, isLoaded } = useUser();
+  const { isSignedIn, user, isLoaded } = useUser(); // Get isLoaded
   const router = useRouter();
 
   useEffect(() => {
-    // Wait for Clerk to be loaded before checking sign-in state
+    // Wait for Clerk to be loaded
     if (isLoaded && !isSignedIn) {
       router.push("/");
       return;
@@ -27,7 +26,7 @@ export default function Dashboard() {
     }
   }, [isLoaded, isSignedIn, user, router]); // Add isLoaded
 
-  // --- ADD THIS LOADING CHECK ---
+  // This check prevents the error
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -35,7 +34,6 @@ export default function Dashboard() {
       </div>
     );
   }
-  // --- END OF FIX ---
 
   if (!user?.publicMetadata?.onboardingCompleted) {
     return (
@@ -47,24 +45,20 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Dashboard Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-600">
               Welcome,{" "}
-              {/* --- FIX: Safely access the email --- */}
+              {/* Safe access to prevent error */}
               {user?.firstName || user?.emailAddresses[0]?.emailAddress}
             </p>
           </div>
         </div>
       </header>
-
-      {/* Dashboard Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Credit Score Card */}
           <div className="bg-white rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Credit Score
@@ -72,8 +66,6 @@ export default function Dashboard() {
             <p className="text-4xl font-bold text-green-600">750</p>
             <p className="text-sm text-gray-600 mt-2">Excellent</p>
           </div>
-
-          {/* Available Loans Card */}
           <div className="bg-white rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Available Loans
@@ -81,8 +73,6 @@ export default function Dashboard() {
             <p className="text-4xl font-bold text-primary">₦200K</p>
             <p className="text-sm text-gray-600 mt-2">Based on your profile</p>
           </div>
-
-          {/* Profile Completion Card */}
           <div className="bg-white rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Profile Status

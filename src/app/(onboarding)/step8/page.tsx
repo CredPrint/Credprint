@@ -1,87 +1,135 @@
+// ==========================================
+// FILE: src/app/(onboarding)/step6/page.tsx
+// ==========================================
 "use client";
 
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
-import ProgressCircle from "@/src/components/ui/ProgressCircle";
+import OTPInput from "@/src/components/forms/OTPInput";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
-import { Check } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-
-export default function Step8() {
+export default function Step6() {
   const { goNext } = useOnboarding();
-  const [isConnecting, setIsConnecting] = useState(false);
+  const { user, isLoaded } = useUser();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [codeSent, setCodeSent] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  const handleConnect = async () => {
+  // Get the primary email address object
+  const email = user?.emailAddresses[0];
+
+  const handleSendCode = async () => {
+    // This check is CRITICAL
+    if (!email) {
+      setError("Error: No email address found.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsConnecting(true);
-      
-      // Call the backend API to run the scoring engine
-      const res = await fetch("/api/onboarding/generate-score", {
-         method: "POST"
-      });
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Scoring generation failed");
-      }
-
-      // Success! Move to the final success screen.
-      goNext();
-    } catch (error: any) {
-       console.error("Scoring error:", error);
-       alert(`Failed to generate score: ${error.message}. Please try again.`);
+      // @ts-expect-error - This method exists on the email object at runtime.
+      await email.prepareEmailAddressVerification({ strategy: "email_code" });
+      setCodeSent(true);
+    } catch (err: any) {
+      setError(err.errors[0]?.longMessage || "Failed to send code. Please try again.");
     } finally {
-       setIsConnecting(false);
+      setIsLoading(false);
     }
   };
 
-  const verificationItems = [
-    "Transaction Data Uploaded",
-    "Wallet Provider Selected",
-    "Phone Confirmed",
-  ];
+  const handleVerify = async (code: string) => {
+    // This check is CRITICAL
+    if (!email || !user) {
+      setError("Error: User session lost. Please reload.");
+      return;
+    }
+
+    setIsVerifying(true);
+    setError(null);
+    try {
+      // @ts-expect-error - This method exists on the email object at runtime.
+      await email.attemptEmailAddressVerification({ code });
+      
+      await user.reload(); 
+      alert("Email verified successfully!");
+      goNext();
+    } catch (err: any) {
+      setError(err.errors[0]?.longMessage || "Invalid code. Please try again.");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  // This check prevents the error
+  if (!isLoaded) {
+    return (
+      <OnboardingLayout currentStep={4}>
+        <div className="text-center p-4">
+          <p>Loading user...</p>
+        </div>
+      </OnboardingLayout>
+    );
+  }
+
+  // This check also prevents the error
+  if (!email) {
+    return (
+      <OnboardingLayout currentStep={4}>
+        <div className="text-center p-4 space-y-3">
+           <h1 className="text-2xl font-bold text-red-600">Error</h1>
+          <p className="text-gray-600">No email address was found for your account.</p>
+        </div>
+      </OnboardingLayout>
+    );
+  }
 
   return (
-    <OnboardingLayout currentStep={6}>
-      <div className="flex flex-col items-center space-y-6">
-        {/* Header */}
+    <OnboardingLayout currentStep={4}>
+      <div className="flex flex-col space-y-6">
         <div className="text-center space-y-3">
           <h1 className="text-2xl font-bold text-gray-900">
-            Review Your Information
+            Verify Your Email
           </h1>
           <p className="text-gray-600 text-base">
-            We're securely analyzing your data to build your profile.
+            We'll send a 6-digit code to:
           </p>
+          <p className="font-semibold text-gray-900">{email.emailAddress}</p>
         </div>
 
-        {/* Progress Circle */}
-        <div className="my-8">
-          <ProgressCircle progress={isConnecting ? 95 : 85} />
-        </div>
+        <div className="flex flex-col items-center space-y-6">
+          {!codeSent ? (
+            <Button
+              onClick={handleSendCode}
+              disabled={isLoading}
+              size="lg"
+              className="w-full"
+            >
+              {isLoading ? "Sending..." : "Send Verification Code"}
+            </Button>
+          ) : (
+            <>
+              <OTPInput onComplete={handleVerify} />
+              <Button
+                onClick={handleSendCode}
+                disabled={isLoading}
+                variant="ghost"
+                className="text-sm"
+              >
+                {isLoading ? "Resending..." : "Didn't receive code? Resend"}
+              </Button>
+            </>
+          )}
 
-        {/* Verification Checklist */}
-        <div className="w-full space-y-3 bg-gray-50 rounded-xl p-4">
-          {verificationItems.map((item) => (
-            <div key={item} className="flex items-center justify-between py-2">
-              <span className="text-sm font-medium text-gray-700">{item}</span>
-              <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-                <Check className="w-4 h-4 text-white" strokeWidth={3} />
-              </div>
-            </div>
-          ))}
+          {isVerifying && (
+            <p className="text-sm text-gray-600">Verifying...</p>
+          )}
+          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
         </div>
-
-        {/* Connect Button */}
-        <Button
-          onClick={handleConnect}
-          disabled={isConnecting}
-          size="lg"
-          className="w-full"
-        >
-          {isConnecting ? "Analyzing Data..." : "Generate My Score"}
-        </Button>
       </div>
     </OnboardingLayout>
   );
