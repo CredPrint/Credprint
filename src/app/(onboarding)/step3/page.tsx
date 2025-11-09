@@ -11,6 +11,9 @@ import FileUpload from "@/src/components/forms/FileUpload";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
 
+// -------------------------------------------------
+// 1. Zod schema
+// -------------------------------------------------
 const schema = z.object({
   statement: z
     .string()
@@ -21,6 +24,9 @@ const schema = z.object({
     ),
 });
 
+// -------------------------------------------------
+// 2. Page component
+// -------------------------------------------------
 export const dynamic = "force-dynamic";
 
 export default function Step3() {
@@ -48,7 +54,6 @@ export default function Step3() {
     try {
       setIsUploading(true);
       
-      // Call the backend API
       const res = await fetch("/api/onboarding/upload-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,14 +64,25 @@ export default function Step3() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Upload failed");
+        // FIXED: Robust error handling.
+        // If the server crashes or sends HTML (like 413 Payload Too Large), 
+        // res.json() fails with "Unexpected end of JSON input".
+        let errorMessage = `Upload failed with status: ${res.status}`;
+        try {
+            const errorData = await res.json();
+            errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+            // Could not parse JSON, stick with the generic error message
+            console.warn("Response was not JSON:", res.status);
+        }
+        throw new Error(errorMessage);
       }
       
+      // Success
       goNext();
     } catch (error: any) {
       console.error("Upload error:", error);
-      alert(`Failed to upload data: ${error.message}. Please try again.`);
+      alert(`Failed to upload: ${error.message}. \n\nIf uploading a PDF, try a smaller file or a .txt/.csv version.`);
     } finally {
       setIsUploading(false);
     }
@@ -75,6 +91,7 @@ export default function Step3() {
   return (
     <OnboardingLayout currentStep={3}>
       <div className="flex flex-col items-center space-y-6">
+        {/* Illustration */}
         <div className="w-full max-w-xs mb-4">
           <Image
             src="/images/Onstep3.png"
@@ -82,9 +99,11 @@ export default function Step3() {
             width={300}
             height={300}
             className="w-full h-auto"
+            priority
           />
         </div>
 
+        {/* Title and Subtitle */}
         <div className="text-center space-y-3">
           <h1 className="text-2xl font-bold text-gray-900 px-4">
             Upload Your Transaction History
@@ -94,6 +113,7 @@ export default function Step3() {
           </p>
         </div>
 
+        {/* FileUpload uses proper MIME types internally */}
         <FileUpload
           name="statement"
           control={control}
@@ -102,6 +122,7 @@ export default function Step3() {
           accept=".pdf,.csv,.txt,.jpg,.jpeg,.png"
         />
 
+        {/* Show Zod error if any */}
         {errors.statement && (
           <p className="text-sm text-red-600 text-center">
             {errors.statement.message}
