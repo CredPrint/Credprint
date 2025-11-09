@@ -1,7 +1,7 @@
 // ==========================================
-// FILE: src/app/api/onboarding/upload-data/route.ts (FIXED)
+// FILE: src/app/api/onboarding/upload-data/route.ts (Corrected)
 // ==========================================
-import { auth, currentUser } from "@clerk/nextjs/server"; // <-- Import currentUser
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/lib/db";
 import { encrypt } from "@/src/lib/security";
@@ -12,6 +12,7 @@ import { parseTransactions } from "@/src/lib/parsing.service";
  * after they have authenticated with Clerk.
  */
 async function getOrCreateUser() {
+  // 1. Get auth data
   const { userId } = auth();
   const clerkUser = await currentUser();
 
@@ -19,12 +20,12 @@ async function getOrCreateUser() {
     throw new Error("Unauthorized");
   }
 
-  // Check if user already exists in our DB
+  // 2. Check if user already exists in our DB
   let user = await prisma.user.findUnique({
     where: { id: userId },
   });
 
-  // If not, create them
+  // 3. If not, create them
   if (!user) {
     console.log(`User ${userId} not found in DB. Creating...`);
     const email = clerkUser.emailAddresses[0]?.emailAddress;
@@ -45,13 +46,20 @@ async function getOrCreateUser() {
     console.log(`User ${userId} created in DB.`);
   }
 
+  // 4. Return the guaranteed non-null user from our DB
   return user;
 }
 
 export async function POST(request: Request) {
   try {
-    // This will now get the user, or create them if they don't exist
+    // --- THIS IS THE FIX ---
+    // 1. We call our new helper function.
+    // 'user' is now the full user object from our database, NOT the old `userId`
     const user = await getOrCreateUser();
+
+    // 2. We NO LONGER need the old `const { userId } = auth()`
+    // or `if (!userId)` checks here, as the helper does it.
+    // --- END OF FIX ---
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -71,7 +79,10 @@ export async function POST(request: Request) {
 
     const rawData = await prisma.rawData.create({
       data: {
-        userId: user.id, // This will now succeed
+        // --- THIS IS THE FIX ---
+        // We use `user.id` (which is a string)
+        // This is why your editor was underlining `userId` (which was string | null)
+        userId: user.id,
         source,
         content: encryptedContent,
       },
@@ -89,7 +100,7 @@ export async function POST(request: Request) {
       await prisma.transaction.createMany({
         data: transactions.map((tx) => ({
           ...tx,
-          userId: user.id,
+          userId: user.id, // <-- Also use user.id here
           sourceDataId: rawData.id,
         })),
       });
