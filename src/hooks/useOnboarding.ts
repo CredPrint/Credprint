@@ -2,18 +2,18 @@ import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 
+/// ... (imports)
+
 // src/hooks/useOnboarding.ts
 const steps = [
   "step1",
-  // "step2", // Removed
-  "step3", // Now "Upload Data"
+  "step3", // "Upload Data"
   "step4", // "Select Provider"
-  // "step5", // Removed
-  "step6", // "Verify Phone"
-  "step7", // "Enter OTP"
+  "step6", // "Verify Email" (This now replaces old step6 AND step7)
   "step8", // "Review & Finish"
   "success",
 ];
+
 
 export function useOnboarding() {
   const router = useRouter();

@@ -1,26 +1,3 @@
-MIT © CredPrint
-
-## Onboarding flow (6 steps)
-We recently simplified the onboarding flow to a 6-step sequence. The app keeps the old route files for backwards compatibility but two steps were removed from the active flow:
-- Removed steps: `step2` (intro/info) and `step5` (separate ID upload)
-- Active compact flow (user-facing, 6 steps):
-	1. Step 1 — Get started / Intro
-	2. Step 2 — Upload Bank Statement (originally `step3`)
-	3. Step 3 — Select Wallet Provider (originally `step4`)
-	4. Step 4 — Verify Phone (originally `step6`)
-	5. Step 5 — Enter OTP (originally `step7`)
-	6. Step 6 — Review & Finish (originally `step8`)
-
-Behavioral notes:
-- The `/step2` and `/step5` routes still exist but are client-side redirects that forward users to the next active step (`/step3` and `/step6` respectively). This preserves old URLs while enforcing the new flow.
-- The frontend `ProgressBar` and `OnboardingLayout` have been updated to show "Step X of 6" and to map legacy page numbers to the compact flow.
-- Validation (`src/lib/validation.ts`) was updated to remove the now-inactive ID upload step from the combined `fullOnboardingSchema`. If you still require an ID upload, see "Follow-ups" below.
-
-Follow-ups:
-- If the ID upload is still required by your product, decide where it should be collected (e.g., merge into the bank statement upload step) and update `fullOnboardingSchema` and server handlers to expect it there.
-- If you prefer to remove the legacy routes entirely (no redirects), we can delete `src/app/(onboarding)/step2/page.tsx` and `src/app/(onboarding)/step5/page.tsx` and run a build to clean up route manifests.
-<!-- Banner -->
-
 
 # CredPrint
 

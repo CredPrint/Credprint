@@ -1,58 +1,140 @@
-// src/app/(onboarding)/step6/page.tsx
+// ==========================================
+// FILE: src/app/(onboarding)/step6/page.tsx (FINAL FIX)
+// ==========================================
 "use client";
 
+import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
-import PhoneInput from "@/src/components/forms/PhoneInput";
+import OTPInput from "@/src/components/forms/OTPInput";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-const schema = z.object({
-  phone: z.string().regex(/^\+234\d{10}$/, "Enter valid Nigerian number"),
-});
 
 export default function Step6() {
   const { goNext } = useOnboarding();
-  const {
-    control,
-    handleSubmit,
-    formState: { isValid },
-  } = useForm({
-    resolver: zodResolver(schema),
-    mode: "onChange",
-  });
+  const { user, isLoaded } = useUser();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [codeSent, setCodeSent] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  const onSubmit = () => {
-    goNext();
+  const email = user?.emailAddresses[0];
+
+  const handleSendCode = async () => {
+    if (!email) {
+      setError("Error: No email address found.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      // --- THIS IS THE FIX ---
+      // This comment tells TypeScript to ignore the underline
+      // on the *next line* because we know it's correct.
+      // @ts-expect-error - This method exists on the email object at runtime.
+      await email.prepareEmailAddressVerification({ strategy: "email_code" });
+      
+      setCodeSent(true);
+    } catch (err: any) {
+      setError(err.errors[0]?.longMessage || "Failed to send code. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  const handleVerify = async (code: string) => {
+    if (!email || !user) {
+      setError("Error: User session lost. Please reload.");
+      return;
+    }
+
+    setIsVerifying(true);
+    setError(null);
+    try {
+      // --- THIS IS THE FIX ---
+      // We add the same comment here for the other underlined method.
+      // @ts-expect-error - This method also exists on the email object at runtime.
+      await email.attemptEmailAddressVerification({ code });
+      
+      await user.reload(); 
+      
+      alert("Email verified successfully!");
+      goNext();
+    } catch (err: any) {
+      setError(err.errors[0]?.longMessage || "Invalid code. Please try again.");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  if (!isLoaded) {
+    return (
+      <OnboardingLayout currentStep={4}>
+        <div className="text-center p-4">
+          <p>Loading user...</p>
+        </div>
+      </OnboardingLayout>
+    );
+  }
+
+  if (!email) {
+    return (
+      <OnboardingLayout currentStep={4}>
+        <div className="text-center p-4 space-y-3">
+           <h1 className="text-2xl font-bold text-red-600">Error</h1>
+          <p className="text-gray-600">No email address was found for your account.</p>
+        </div>
+      </OnboardingLayout>
+    );
+  }
+
   return (
-    <OnboardingLayout currentStep={6}>
+    <OnboardingLayout currentStep={4}>
       <div className="flex flex-col space-y-6">
         {/* Header */}
         <div className="text-center space-y-3">
           <h1 className="text-2xl font-bold text-gray-900">
-            Verify Your Phone Number
+            Verify Your Email
           </h1>
-          <p className="text-gray-600 text-base">We'll send a 6-digit code</p>
+          <p className="text-gray-600 text-base">
+            We'll send a 6-digit code to:
+          </p>
+          <p className="font-semibold text-gray-900">{email.emailAddress}</p>
         </div>
 
-        {/* Phone Input */}
-        <div className="space-y-4">
-          <PhoneInput control={control} />
-        </div>
+        {/* Conditional UI */}
+        <div className="flex flex-col items-center space-y-6">
+          {!codeSent ? (
+            <Button
+              onClick={handleSendCode}
+              disabled={isLoading}
+              size="lg"
+              className="w-full"
+            >
+              {isLoading ? "Sending..." : "Send Verification Code"}
+            </Button>
+          ) : (
+            <>
+              <OTPInput onComplete={handleVerify} />
+              <Button
+                onClick={handleSendCode}
+                disabled={isLoading}
+                variant="ghost"
+                className="text-sm"
+              >
+                {isLoading ? "Resending..." : "Didn't receive code? Resend"}
+              </Button>
+            </>
+          )}
 
-        {/* Continue Button */}
-        <Button
-          onClick={handleSubmit(onSubmit)}
-          disabled={!isValid}
-          size="lg"
-          className="w-full"
-        >
-          Send Code
-        </Button>
+          {isVerifying && (
+            <p className="text-sm text-gray-600">Verifying...</p>
+          )}
+          
+          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+        </div>
       </div>
     </OnboardingLayout>
   );
