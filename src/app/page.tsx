@@ -12,6 +12,8 @@ import FAQSection from "@/src/components/homepage/FAQSection";
 import CTASection from "@/src/components/homepage/CTASection";
 import Footer from "@/src/components/homepage/Footer";
 import Navbar from "@/src/components/homepage/Navbar";
+import AboutVisionSection from "../components/homepage/AboutSection";
+import ServicesSection from "../components/homepage/Service";
 
 export default function Homepage() {
   const { isSignedIn, user } = useUser();
@@ -43,7 +45,10 @@ export default function Homepage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
+
       <HeroSection />
+      <AboutVisionSection />
+      <ServicesSection />
       <FeaturesSection />
       <HowItWorksSection />
       <TestimonialsSection />

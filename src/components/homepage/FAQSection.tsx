@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
+import AnimatedContent from "@/src/components/Animations/AnimatedContent";
 
 const faqs = [
   {
@@ -47,39 +48,63 @@ export default function FAQSection() {
     <section id="faq" className="py-20 bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-xl text-gray-600">
-            Everything you need to know about CredPrint
-          </p>
-        </div>
+        <AnimatedContent
+          distance={60}
+          direction="vertical"
+          duration={0.8}
+          initialOpacity={0}
+          animateOpacity
+          threshold={0.2}
+        >
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-gray-600">
+              Everything you need to know about CredPrint
+            </p>
+          </div>
+        </AnimatedContent>
 
         {/* FAQ Items */}
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <div key={index} className="bg-gray-50 rounded-2xl overflow-hidden">
-              <button
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-100 transition-colors"
-              >
-                <span className="font-semibold text-gray-900 pr-8">
-                  {faq.question}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    "w-5 h-5 text-gray-600 transition-transform flex-shrink-0",
-                    openIndex === index && "rotate-180"
-                  )}
-                />
-              </button>
-              {openIndex === index && (
-                <div className="px-6 pb-4">
-                  <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                </div>
-              )}
-            </div>
+            <AnimatedContent
+              key={index}
+              distance={60}
+              direction="vertical"
+              duration={0.6}
+              delay={0.1 + index * 0.08}
+              initialOpacity={0}
+              animateOpacity
+              threshold={0.1}
+            >
+              <div className="bg-gray-50 rounded-2xl overflow-hidden">
+                <button
+                  onClick={() =>
+                    setOpenIndex(openIndex === index ? null : index)
+                  }
+                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-100 transition-colors"
+                >
+                  <span className="font-semibold text-gray-900 pr-8">
+                    {faq.question}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "w-5 h-5 text-gray-600 transition-transform flex-shrink-0",
+                      openIndex === index && "rotate-180"
+                    )}
+                  />
+                </button>
+                {openIndex === index && (
+                  <div className="px-6 pb-4">
+                    <p className="text-gray-600 leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </AnimatedContent>
           ))}
         </div>
       </div>
