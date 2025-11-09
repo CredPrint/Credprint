@@ -1,22 +1,31 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import type { Metadata } from "next";
-import "./globals.css";
+// ==========================================
+// FILE: src/app/(onboarding)/layout.tsx (FIXED)
+// ==========================================
+"use client";
 
-export const metadata: Metadata = {
-  title: "CredPrint - Build Your Credit Profile",
-  description: "Get verified in minutes",
-};
+import ProgressBar from "@/src/components/onboarding/ProgressBar";
+import { useOnboarding } from "@/src/hooks/useOnboarding";
+import { ReactNode } from "react";
 
-export default function RootLayout({
+export default function OnboardingLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
+  // This hook is now the single source of truth for step logic
+  const { currentStep, totalSteps } = useOnboarding();
+
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className="bg-white antialiased">{children}</body>
-      </html>
-    </ClerkProvider>
+    <div className="min-h-screen bg-gradient-to-b from-primary-light to-white p-4 flex flex-col items-center justify-center">
+      <div className="w-full max-w-md space-y-6">
+        {/* 1. The Progress Bar (was already here) */}
+        <ProgressBar current={currentStep} total={totalSteps} />
+        
+        {/* 2. The White Card Wrapper (MOVED FROM OnboardingLayout.tsx) */}
+        <div className="bg-white rounded-2xl shadow-sm p-6 space-y-6">
+          {children}
+        </div>
+      </div>
+    </div>
   );
 }

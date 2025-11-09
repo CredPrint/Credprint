@@ -1,11 +1,11 @@
 // ==========================================
-// FILE: src/app/(onboarding)/step6/page.tsx (FINAL FIX)
+// FILE: src/app/(onboarding)/step6/page.tsx (FIXED)
 // ==========================================
 "use client";
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
+// import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout"; // <-- REMOVED
 import OTPInput from "@/src/components/forms/OTPInput";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
@@ -30,9 +30,6 @@ export default function Step6() {
     setIsLoading(true);
     setError(null);
     try {
-      // --- THIS IS THE FIX ---
-      // This comment tells TypeScript to ignore the underline
-      // on the *next line* because we know it's correct.
       // @ts-expect-error - This method exists on the email object at runtime.
       await email.prepareEmailAddressVerification({ strategy: "email_code" });
       
@@ -53,8 +50,6 @@ export default function Step6() {
     setIsVerifying(true);
     setError(null);
     try {
-      // --- THIS IS THE FIX ---
-      // We add the same comment here for the other underlined method.
       // @ts-expect-error - This method also exists on the email object at runtime.
       await email.attemptEmailAddressVerification({ code });
       
@@ -70,72 +65,69 @@ export default function Step6() {
   };
 
   if (!isLoaded) {
+    // The wrapper is gone. Just return the content.
     return (
-      <OnboardingLayout currentStep={4}>
-        <div className="text-center p-4">
-          <p>Loading user...</p>
-        </div>
-      </OnboardingLayout>
+      <div className="text-center p-4">
+        <p>Loading user...</p>
+      </div>
     );
   }
 
   if (!email) {
+    // The wrapper is gone.
     return (
-      <OnboardingLayout currentStep={4}>
-        <div className="text-center p-4 space-y-3">
-           <h1 className="text-2xl font-bold text-red-600">Error</h1>
-          <p className="text-gray-600">No email address was found for your account.</p>
-        </div>
-      </OnboardingLayout>
+      <div className="text-center p-4 space-y-3">
+         <h1 className="text-2xl font-bold text-red-600">Error</h1>
+        <p className="text-gray-600">No email address was found for your account.</p>
+      </div>
     );
   }
 
+  // The wrapper is gone.
   return (
-    <OnboardingLayout currentStep={4}>
-      <div className="flex flex-col space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Verify Your Email
-          </h1>
-          <p className="text-gray-600 text-base">
-            We'll send a 6-digit code to:
-          </p>
-          <p className="font-semibold text-gray-900">{email.emailAddress}</p>
-        </div>
+    <div className="flex flex-col space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-3">
+        <h1 className="text-2xl font-bold text-gray-900">
+          Verify Your Email
+        </h1>
+        <p className="text-gray-600 text-base">
+          We'll send a 6-digit code to:
+        </p>
+        <p className="font-semibold text-gray-900">{email.emailAddress}</p>
+      </div>
 
-        {/* Conditional UI */}
-        <div className="flex flex-col items-center space-y-6">
-          {!codeSent ? (
+      {/* Conditional UI */}
+      <div className="flex flex-col items-center space-y-6">
+        {!codeSent ? (
+          <Button
+            onClick={handleSendCode}
+            disabled={isLoading}
+            size="lg"
+            className="w-full"
+          >
+            {isLoading ? "Sending..." : "Send Verification Code"}
+          </Button>
+        ) : (
+          <>
+            <OTPInput onComplete={handleVerify} />
             <Button
               onClick={handleSendCode}
               disabled={isLoading}
-              size="lg"
-              className="w-full"
+              variant="ghost"
+              className="text-sm"
             >
-              {isLoading ? "Sending..." : "Send Verification Code"}
+              {isLoading ? "Resending..." : "Didn't receive code? Resend"}
             </Button>
-          ) : (
-            <>
-              <OTPInput onComplete={handleVerify} />
-              <Button
-                onClick={handleSendCode}
-                disabled={isLoading}
-                variant="ghost"
-                className="text-sm"
-              >
-                {isLoading ? "Resending..." : "Didn't receive code? Resend"}
-              </Button>
-            </>
-          )}
+          </>
+        )}
 
-          {isVerifying && (
-            <p className="text-sm text-gray-600">Verifying...</p>
-          )}
-          
-          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
-        </div>
+        {isVerifying && (
+          <p className="text-sm text-gray-600">Verifying...</p>
+        )}
+        
+        {error && <p className="text-sm text-red-600 text-center">{error}</p>}
       </div>
-    </OnboardingLayout>
+    </div>
   );
 }

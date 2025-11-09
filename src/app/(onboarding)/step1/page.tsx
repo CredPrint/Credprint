@@ -1,21 +1,21 @@
+// ==========================================
+// FILE: src/app/(onboarding)/step1/page.tsx (FIXED)
+// ==========================================
 "use client";
 
-import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
+// import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout"; // <-- REMOVED
 import StepHeader from "@/src/components/onboarding/StepHeader";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
 import Image from "next/image";
 
-const OnboardingLayoutAny = OnboardingLayout as React.ComponentType<{
-  children?: React.ReactNode;
-  currentStep: number;
-}>;
+// const OnboardingLayoutAny = OnboardingLayout as React.ComponentType<{...}>; // <-- REMOVED
 
 export default function Step1() {
   const { goNext } = useOnboarding();
 
   return (
-    <OnboardingLayoutAny currentStep={1}>
+    // <OnboardingLayoutAny currentStep={1}> {/* <-- REMOVED WRAPPER */}
       <div className="flex flex-col items-center text-center space-y-6">
         {/* Illustration */}
         <div className="w-full max-w-xs mb-4">
@@ -45,6 +45,6 @@ export default function Step1() {
           </Button>
         </div>
       </div>
-    </OnboardingLayoutAny>
+    // </OnboardingLayoutAny> {/* <-- REMOVED WRAPPER */}
   );
 }

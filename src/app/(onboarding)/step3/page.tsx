@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
 import { useState } from "react";
-import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
+// import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout"; // <-- REMOVED
 import FileUpload from "@/src/components/forms/FileUpload";
 import { Button } from "@/src/components/ui/Button";
 import { useOnboarding } from "@/src/hooks/useOnboarding";
@@ -41,7 +41,6 @@ export default function Step3() {
       formData.append("file", blob, "statement");
       formData.append("source", "generic_upload");
       
-      // CORRECTED FETCH CALL - NO CONTENT-TYPE HEADER
       const res = await fetch("/api/onboarding/upload-data", {
         method: "POST",
         body: formData,
@@ -62,7 +61,7 @@ export default function Step3() {
   };
 
   return (
-    <OnboardingLayout currentStep={3}>
+    // <OnboardingLayout currentStep={3}> {/* <-- REMOVED WRAPPER */}
       <div className="flex flex-col items-center space-y-6">
         <div className="w-full max-w-xs mb-4">
           <Image src="/images/Onstep3.png" alt="Upload" width={300} height={300} className="w-full h-auto" priority />
@@ -72,22 +71,20 @@ export default function Step3() {
           <p className="text-gray-600 text-base px-6">Export data from your wallet app or SMS inbox.</p>
         </div>
         
-        {/* --- THE FIX IS HERE --- */}
         <FileUpload 
           name="statement" 
           control={control} 
           setValue={setValue} 
-          value={file} // <-- PASS THE VALUE FROM 'watch' AS A PROP
+          value={file}
           label="Upload PDF, CSV, or TXT" 
           accept=".pdf,.csv,.txt" 
         />
-        {/* --- END OF FIX --- */}
 
         {errors.statement && <p className="text-sm text-red-600 text-center">{errors.statement.message}</p>}
         <Button onClick={handleSubmit(onSubmit)} disabled={!file || isUploading} className="w-full" size="lg">
           {isUploading ? "Uploading..." : "Continue"}
         </Button>
       </div>
-    </OnboardingLayout>
+    // </OnboardingLayout> {/* <-- REMOVED WRAPPER */}
   );
 }

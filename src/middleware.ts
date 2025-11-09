@@ -1,12 +1,10 @@
 // ==========================================
-// FILE: src/proxy.ts (New file, replaces middleware.ts)
+// FILE: src/middleware.ts (FIXED - Renamed from proxy.ts)
 // ==========================================
-// src/proxy.ts
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
 // Define which routes are protected.
-// In your case, we want to protect everything EXCEPT public routes.
-// The following routes are PUBLIC:
+// These routes are PUBLIC:
 const isPublicRoute = createRouteMatcher([
   '/',
   '/sign-in(.*)',
