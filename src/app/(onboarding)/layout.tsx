@@ -12,7 +12,7 @@ export default function OnboardingLayout({
 }: {
   children: ReactNode;
 }) {
-  // This hook is the single source of truth
+  // This hook is now the single source of truth for step logic
   const { currentStep, totalSteps } = useOnboarding();
 
   return (
