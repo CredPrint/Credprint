@@ -1,79 +1,108 @@
+// ==========================================
+// FILE: src/components/forms/FileUpload.tsx (FIXED)
+// ==========================================
+// src/components/forms/FileUpload.tsx
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { useState } from "react";
-import OnboardingLayout from "@/src/components/onboarding/OnboardingLayout";
-import FileUpload from "@/src/components/forms/FileUpload";
-import { Button } from "@/src/components/ui/Button";
-import { useOnboarding } from "@/src/hooks/useOnboarding";
+import { Upload } from "lucide-react";
 
-const schema = z.object({
-  statement: z.string().min(1, "Please upload your transaction history")
-});
+interface FileUploadProps {
+  name: string;
+  control: any;
+  setValue: any;
+  label: string;
+  accept?: string; // e.g. ".pdf,.jpg,.png,.csv,.txt"
+}
 
-export const dynamic = "force-dynamic";
+export default function FileUpload({
+  name,
+  control,
+  setValue,
+  label,
+  accept = ".pdf,.jpg,.jpeg,.png,.csv,.txt",
+}: FileUploadProps) {
+  const onDrop = (files: File[]) => {
+    const file = files[0];
+    if (!file) return;
 
-export default function Step3() {
-  const { goNext } = useOnboarding();
-  const [isUploading, setIsUploading] = useState(false);
-  const { control, handleSubmit, setValue, watch, getValues, formState: { errors } } = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: { statement: undefined },
-  });
-
-  const file = watch("statement");
-
-  const onSubmit = async () => {
-    const fileDataUrl = getValues("statement");
-    if (!fileDataUrl) return;
-
-    try {
-      setIsUploading(true);
-      const res1 = await fetch(fileDataUrl);
-      const blob = await res1.blob();
-      const formData = new FormData();
-      formData.append("file", blob, "statement");
-      formData.append("source", "generic_upload");
-      
-      // CORRECTED FETCH CALL - NO CONTENT-TYPE HEADER
-      const res = await fetch("/api/onboarding/upload-data", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        let errorMessage = `Upload failed with status: ${res.status}`;
-        try { const data = await res.json(); if (data.error) errorMessage = data.error; } catch (e) {}
-        throw new Error(errorMessage);
-      }
-      goNext();
-    } catch (error: any) {
-      console.error("Upload error:", error);
-      alert(`Failed to upload: ${error.message}`);
-    } finally {
-      setIsUploading(false);
-    }
+    const reader = new FileReader();
+    reader.onload = () => setValue(name, reader.result as string);
+    reader.readAsDataURL(file);
   };
 
+  // Map extensions → real MIME types
+  const mimeMap: Record<string, string[]> = {
+    ".pdf": ["application/pdf"],
+    ".jpg": ["image/jpeg"],
+    ".jpeg": ["image/jpeg"],
+    ".png": ["image/png"],
+    ".csv": ["text/csv"],
+    ".txt": ["text/plain"],
+  };
+
+  // **THE FIX IS HERE:**
+  // We must build an object where the KEY is the MIME type
+  // and the VALUE is an array of extensions.
+  const acceptObj = accept.split(",").reduce((obj, ext) => {
+    const key = ext.trim().toLowerCase();
+    if (mimeMap[key]) {
+      // Loop over all MIME types for this extension
+      mimeMap[key].forEach(mimeType => {
+        // If this MIME type isn't in the obj yet, add it
+        if (!obj[mimeType]) {
+          obj[mimeType] = [];
+        }
+        // Add the extension to this MIME type's array
+        obj[mimeType].push(key);
+      });
+    }
+    return obj;
+  }, {} as Record<string, string[]>);
+  // This will result in a correct object like:
+  // { 'application/pdf': ['.pdf'], 'text/csv': ['.csv'], ... }
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: acceptObj,
+    multiple: false,
+  });
+
+  const value = control._formValues?.[name];
+
   return (
-    <OnboardingLayout currentStep={3}>
-      <div className="flex flex-col items-center space-y-6">
-        <div className="w-full max-w-xs mb-4">
-          <Image src="/images/Onstep3.png" alt="Upload" width={300} height={300} className="w-full h-auto" priority />
+    <div>
+      {value ? (
+        <div className="border-2 border-dashed border-green-200 rounded-xl p-4 text-center">
+          {value.startsWith("data:image") ? (
+            <Image
+              src={value}
+              alt="upload"
+              width={200}
+              height={200}
+              className="mx-auto rounded"
+            />
+          ) : (
+            <div className="bg-gray-100 border-2 border-dashed rounded-xl p-8 text-center">
+              <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-green-600">File uploaded</p>
+            </div>
+          )}
         </div>
-        <div className="text-center space-y-3">
-          <h1 className="text-2xl font-bold text-gray-900 px-4">Upload Transaction History</h1>
-          <p className="text-gray-600 text-base px-6">Export data from your wallet app or SMS inbox.</p>
+      ) : (
+        <div
+          {...getRootProps()}
+          className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-primary transition"
+        >
+          <input {...getInputProps()} />
+          <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+          <p className="text-gray-700 font-medium">{label}</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {accept.replace(/,/g, ", ")} (≤10 MB)
+          </p>
         </div>
-        <FileUpload name="statement" control={control} setValue={setValue} label="Upload PDF, CSV, or TXT" accept=".pdf,.csv,.txt" />
-        {errors.statement && <p className="text-sm text-red-600 text-center">{errors.statement.message}</p>}
-        <Button onClick={handleSubmit(onSubmit)} disabled={!file || isUploading} className="w-full" size="lg">
-          {isUploading ? "Uploading..." : "Continue"}
-        </Button>
-      </div>
-    </OnboardingLayout>
+      )}
+    </div>
   );
 }

@@ -1,9 +1,10 @@
 // ==========================================
-// src/components/homepage/HowItWorksSection.tsx
+// FILE: src/components/homepage/HowItWorksSection.tsx (FIXED)
 // ==========================================
 "use client";
 
-import { FileText, UserCheck, CreditCard, CheckCircle } from "lucide-react";
+// Use 'Upload' instead of 'UserCheck' for the second step
+import { FileText, Upload, CreditCard, CheckCircle } from "lucide-react";
 
 const steps = [
   {
@@ -14,18 +15,18 @@ const steps = [
       "Create your account in seconds with just your email or phone number.",
   },
   {
-    icon: UserCheck,
+    icon: Upload, // Changed from UserCheck
     number: "02",
-    title: "Verify Identity",
+    title: "Upload History", // Changed from "Verify Identity"
     description:
-      "Upload your BVN, ID, and bank statement for instant verification.",
+      "Upload your transaction history (PDF, CSV, or TXT) from your bank or wallet app.", // Removed "BVN, ID"
   },
   {
     icon: CreditCard,
     number: "03",
-    title: "Connect Accounts",
+    title: "Select Provider", // Changed from "Connect Accounts"
     description:
-      "Link your wallet and bank accounts securely to build your profile.",
+      "Select your wallet provider (like Opay or PalmPay) and verify your phone.", // More accurate description
   },
   {
     icon: CheckCircle,
@@ -46,10 +47,10 @@ export default function HowItWorksSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Simple, Transparent Pricing
+            Get Your Score in 4 Easy Steps
           </h2>
           <p className="text-xl text-gray-600">
-            Get started in 4 easy steps. No hidden fees, no complicated process.
+            No BVN or traditional credit history required. Just your transaction data.
           </p>
         </div>
 
