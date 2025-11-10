@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/src/lib/db";
 import { encrypt } from "@/src/lib/security";
 import { parseTransactions } from "@/src/lib/parsing.service";
-// @ts-expect-error: pdf-parse has no type definitions
+
 import pdf from "pdf-parse";
 
 import Papa from "papaparse";
