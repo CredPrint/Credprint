@@ -7,7 +7,7 @@ import { prisma } from "@/src/lib/db";
 import { encrypt } from "@/src/lib/security";
 import { parseTransactions } from "@/src/lib/parsing.service";
 
-import pdf = require("pdf-parse");
+import pdf from "pdf-parse";
 
 import Papa from "papaparse";
 
@@ -91,6 +91,7 @@ try {
   let textContent = "";
 
   if (file.type === "application/pdf") {
+    // @ts-expect-error - The @types/pdf-parse package is outdated and conflicts with the real ESM module
     const data = await pdf(buffer);
     textContent = data.text;
   } else if (file.type === "text/csv") {
