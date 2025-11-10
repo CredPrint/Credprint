@@ -1,5 +1,5 @@
 // ==========================================
-// FILE: src/app/dashboard/page.tsx
+// FILE: src/app/dashboard/page.tsx (FIXED)
 // ==========================================
 "use client";
 
@@ -8,25 +8,24 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Dashboard() {
-  const { isSignedIn, user, isLoaded } = useUser(); // Get isLoaded
+  const { isSignedIn, user, isLoaded } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    // Wait for Clerk to be loaded
     if (isLoaded && !isSignedIn) {
       router.push("/");
       return;
     }
 
     if (isLoaded && isSignedIn) {
-      const hasCompletedOnboarding = user?.publicMetadata?.onboardingCompleted;
+      // FIX: Read from unsafeMetadata to match the success page
+      const hasCompletedOnboarding = user?.unsafeMetadata?.onboardingCompleted;
       if (!hasCompletedOnboarding) {
         router.push("/step1");
       }
     }
-  }, [isLoaded, isSignedIn, user, router]); // Add isLoaded
+  }, [isLoaded, isSignedIn, user, router]);
 
-  // This check prevents the error
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -35,7 +34,8 @@ export default function Dashboard() {
     );
   }
 
-  if (!user?.publicMetadata?.onboardingCompleted) {
+  // FIX: Read from unsafeMetadata here as well
+  if (!user?.unsafeMetadata?.onboardingCompleted) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>Redirecting to onboarding...</p>
@@ -51,7 +51,6 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-600">
               Welcome,{" "}
-              {/* Safe access to prevent error */}
               {user?.firstName || user?.emailAddresses[0]?.emailAddress}
             </p>
           </div>

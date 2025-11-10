@@ -1,17 +1,19 @@
+// ==========================================
+// FILE: src/hooks/useOnboarding.ts (FIXED)
+// ==========================================
 import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 
-/// ... (imports)
-
-// src/hooks/useOnboarding.ts
+// FIX: This array now defines the *actual* flow, skipping redirect-only pages.
+// This ensures the progress bar is accurate (Total 4 steps) and
+// goNext() navigates correctly (e.g., from step4 to step8).
 const steps = [
-  "step1",
-  "step3", // "Upload Data"
-  "step4", // "Select Provider"
-  "step6", // "Verify Email" (This now replaces old step6 AND step7)
-  "step8", // "Review & Finish"
-  "success",
+  "step1",   // Welcome
+  "step3",   // Upload Data
+  "step4",   // Select Provider
+  "step8",   // Review & Finish
+  "success", // Success page
 ];
 
 
@@ -29,7 +31,7 @@ export function useOnboarding() {
 
   const currentIndex = steps.findIndex((s) => pathname.includes(s));
   const currentStep = currentIndex >= 0 ? currentIndex + 1 : 1;
-  const totalSteps = steps.length - 1;
+  const totalSteps = steps.length - 1; // This will now correctly be 4
 
   const goNext = () => {
     const next = steps[currentIndex + 1];

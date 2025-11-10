@@ -46,5 +46,6 @@ export default clerkMiddleware((auth, req) => {
 export const config = {
   // This matcher will run the middleware on ALL requests
   // *except* for static assets and _next internals.
-  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  // FIX: Removed the invalid '/(api|trpc)(.*)' entry.
+  matcher: ['/((?!.*\\..*|_next).*)', '/'],
 };

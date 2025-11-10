@@ -1,5 +1,5 @@
 // ==========================================
-// FILE: src/app/(onboarding)/success/page.tsx
+// FILE: src/app/(onboarding)/success/page.tsx (FIXED)
 // ==========================================
 "use client";
 
@@ -11,12 +11,14 @@ import { Button } from "@/src/components/ui/Button";
 import { useEffect } from "react";
 
 export default function Success() {
-  const { user, isLoaded } = useUser(); // Get isLoaded
+  const { user, isLoaded } = useUser();
   const router = useRouter();
 
   useEffect(() => {
     const updateMetadata = async () => {
       try {
+        // FIX: This is the correct property for client-side updates.
+        // We are writing to unsafeMetadata.
         await user?.update({
           unsafeMetadata: {
             onboardingCompleted: true,
@@ -27,15 +29,13 @@ export default function Success() {
       }
     };
 
-    // Only run when user is loaded
     if (isLoaded && user) updateMetadata();
-  }, [isLoaded, user]); // Add isLoaded
+  }, [isLoaded, user]);
 
   const handleDashboard = () => {
     router.push("/dashboard");
   };
 
-  // This check prevents the error
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-green-50 to-white">
@@ -68,7 +68,6 @@ export default function Success() {
         </Button>
         <p className="text-sm text-gray-500">
           We've sent a confirmation email to{" "}
-          {/* Safe access to prevent error */}
           {user?.emailAddresses[0]?.emailAddress ?? "your email"}
         </p>
       </div>
