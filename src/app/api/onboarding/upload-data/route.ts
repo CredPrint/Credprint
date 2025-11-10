@@ -6,6 +6,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/src/lib/db";
 import { encrypt } from "@/src/lib/security";
 import { parseTransactions } from "@/src/lib/parsing.service";
+import pdf from "pdf-parse";
+import Papa from "papaparse";
 
 /**
  * This helper function gets the Clerk user and ensures they
@@ -77,13 +79,36 @@ export async function POST(request: Request) {
       },
     });
 
-    let transactions: any[] = [];
-    try {
-      const textContent = buffer.toString("utf-8");
-      transactions = parseTransactions(source, textContent);
-    } catch (e) {
-      console.warn("Could not parse file as text:", e);
-    }
+    // --- ADD THESE IMPORTS AT THE TOP ---
+
+
+
+// --- REPLACE THE try/catch BLOCK WITH THIS ---
+let transactions: any[] = [];
+try {
+  let textContent = "";
+
+  if (file.type === "application/pdf") {
+    const data = await pdf(buffer);
+    textContent = data.text;
+  } else if (file.type === "text/csv") {
+    // PapaParse needs a string, not a buffer
+    const csvString = buffer.toString("utf-8");
+    const parsedCsv = Papa.parse(csvString, { header: false });
+    // This joins all cells into one big string, separated by newlines
+    // You may want to build your CSV logic directly in the parsing.service
+    textContent = parsedCsv.data.map((row: any) => row.join(" ")).join("\n");
+  } else {
+    // Default to plain text
+    textContent = buffer.toString("utf-8");
+  }
+
+  transactions = parseTransactions(source, textContent);
+
+} catch (e: any) {
+  console.warn(`Could not parse file ${file.name} as ${file.type}:`, e.message);
+}
+
 
     if (transactions.length > 0) {
       await prisma.transaction.createMany({
