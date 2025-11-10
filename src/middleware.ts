@@ -10,6 +10,9 @@ const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/api/webhooks(.*)',
+  // Add your API routes here so auth.protect() skips them
+  '/api/onboarding/upload-data(.*)',
+  '/api/onboarding/generate-score(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
