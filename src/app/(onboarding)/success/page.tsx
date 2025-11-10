@@ -26,7 +26,7 @@ export default function Success() {
         console.error("Failed to update user metadata:", err);
       }
     };
-    
+
     // Only run when user is loaded
     if (isLoaded && user) updateMetadata();
   }, [isLoaded, user]); // Add isLoaded

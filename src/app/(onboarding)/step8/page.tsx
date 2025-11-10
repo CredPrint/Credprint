@@ -28,10 +28,9 @@ export default function Step8() {
         const data = await res.json();
         throw new Error(data.error || "Failed to generate score");
       }
-      
-      // On success, goNext() will push to the "/success" page
-      goNext(); 
 
+      // On success, goNext() will push to the "/success" page
+      goNext();
     } catch (err: any) {
       setError(err.message);
       setIsLoading(false);
@@ -43,7 +42,7 @@ export default function Step8() {
       {/* You can change this image later, re-using step 1 image for now */}
       <div className="w-full max-w-xs mb-4">
         <Image
-          src="/images/OnStep1.png" 
+          src="/images/OnStep1.png"
           alt="Review and Finish"
           width={300}
           height={300}
@@ -56,15 +55,16 @@ export default function Step8() {
           You're all set!
         </h1>
         <p className="text-gray-600 text-base px-6">
-          Hi {user?.firstName || 'friend'}, we have everything we need to build your credit profile.
+          Hi {user?.firstName || "friend"}, we have everything we need to build
+          your credit profile.
         </p>
       </div>
 
       <div className="w-full pt-4 space-y-3">
-        <Button 
-          onClick={handleGenerateScore} 
-          disabled={isLoading} 
-          size="lg" 
+        <Button
+          onClick={handleGenerateScore}
+          disabled={isLoading}
+          size="lg"
           className="w-full"
         >
           {isLoading ? "Generating Your Score..." : "Finish & View Profile"}
