@@ -13,8 +13,13 @@ const nextConfig = {
 
   // Add any Next.js-specific config here (e.g., images, env vars)
   experimental: {
-    // Optional: Enable if using Turbopack features
+    // THIS IS THE FIX:
+    // This tells Next.js/Turbopack to NOT bundle 'pdf-parse'.
+    // It will be 'require()'d at runtime on the server, just like
+    // a classic Node.js app, bypassing the ESM build error.
+    serverComponentsExternalPackages: ['pdf-parse'],
   },
+
 };
 
 export default nextConfig;

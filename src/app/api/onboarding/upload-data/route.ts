@@ -7,7 +7,7 @@ import { prisma } from "@/src/lib/db";
 import { encrypt } from "@/src/lib/security";
 import { parseTransactions } from "@/src/lib/parsing.service";
 
-import pdf from "pdf-parse";
+import pdf = require("pdf-parse");
 
 import Papa from "papaparse";
 
