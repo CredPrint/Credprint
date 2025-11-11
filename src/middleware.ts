@@ -13,9 +13,10 @@ const isPublicRoute = createRouteMatcher( [
 // These routes will be PROTECTED by the middleware.
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
+ 
   '/step1(.*)',
   '/step2(.*)',
-  '/step3(.*)',
+  '/maintep3(.*)',
   '/step4(.*)',
   '/step5(.*)',
   '/step6(.*)',
@@ -30,7 +31,14 @@ export default clerkMiddleware((auth, req) => {
     // Note: It's 'auth.protect()', not 'auth().protect()'
     auth.protect();
   }
-  
+  if(isPublicRoute(req)) {
+    return;
+  }
+    
+   
+
+    
+
   // If the route is public (like your API routes or homepage),
   // do nothing. The request is allowed to continue.
 });
