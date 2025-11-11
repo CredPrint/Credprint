@@ -20,10 +20,11 @@ export default function FileUpload({
   name,
   control,
   setValue,
-  value, // <-- 2. USE THE NEW PROP
+  value,
   label,
   accept = ".pdf,.jpg,.jpeg,.png",
 }: FileUploadProps) {
+  
   const onDrop = (files: File[]) => {
     const file = files[0];
     if (!file) return;

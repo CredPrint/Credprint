@@ -1,51 +1,27 @@
 // ==========================================
-// FILE: src/middleware.ts (FIXED)
+// FILE: src/middleware.ts (Definitive Fix)
 // ==========================================
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'; // <-- 1. Correct import path
 
-// These routes will be PUBLIC.
-// They are NOT protected by the middleware.
-const isPublicRoute = createRouteMatcher([
-  '/', // The homepage
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/api/webhooks(.*)',
-  
-  // === THIS IS THE FIX ===
-  // Your API routes must be "public" in the middleware's eyes.
-  // They will protect themselves by calling auth() internally.
-  '/api/onboarding/upload-data(.*)',
-  '/api/onboarding/generate-score(.*)',
-]);
+// Define all routes that should be publicly accessible.
+// This INCLUDES your API routes, which handle their own auth checks.
+const isPublicRoute = createRouteMatcher(
+  '/api/onboarding/generate-score(.*)', // Your API route [1])
 
-// These routes will be PROTECTED by the middleware.
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/step1(.*)',
-  '/step2(.*)',
-  '/step3(.*)',
-  '/step4(.*)',
-  '/step5(.*)',
-  '/step6(.*)',
-  '/step7(.*)',
-  '/step8(.*)',
-  '/success(.*)',
-]);
-
+);
 export default clerkMiddleware((auth, req) => {
-  // If the route is protected, call auth.protect()
-  if (isProtectedRoute(req)) {
-    auth.protect();
+  // If the request is for a route that is NOT in the public list,
+  // then protect it.
+  if (!isPublicRoute(req)) {
+    auth.protect(); // <-- 2. Correct syntax: auth() is a function
   }
-  
-  // If the route is public (like your API routes or homepage),
-  // do nothing. The request is allowed to continue.
-  // Your API routes will then handle their own auth() checks.
+
+  // If the route IS in the public list, do nothing.
+  // The request will be allowed to proceed.
 });
 
 export const config = {
-  // This matcher will run the middleware on ALL requests
-  // *except* for static assets and _next internals.
-  // FIX: Removed the invalid '/(api|trpc)(.*)' entry.
+  // This matcher runs the middleware on all requests
+  // *except* for static files and _next internals.
   matcher: ['/((?!.*\\..*|_next).*)', '/'],
 };

@@ -22,7 +22,7 @@ export default function Homepage() {
   useEffect(() => {
     // If user is signed in and hasn't completed onboarding, redirect to step1
     if (isSignedIn) {
-      const hasCompletedOnboarding = user?.publicMetadata?.onboardingCompleted;
+      const hasCompletedOnboarding = user?.unsafeMetadata?.onboardingCompleted;
 
       if (!hasCompletedOnboarding) {
         router.push("/step1");

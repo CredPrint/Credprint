@@ -1,17 +1,22 @@
 // prisma/schema.prisma
-
-// This tells Prisma to use the 'prisma-client-js' generator
+// ==========================================
+// FILE: prisma/schema.prisma (FIXED)
+// ==========================================
 generator client {
   provider = "prisma-client-js"
 }
 
-// This block defines your database connection.
 datasource db {
   provider = "postgresql"
-  // This is the CRITICAL change:
-  // It tells Prisma to use your DIRECT_URL for commands like 'migrate'
-  url      = env("DIRECT_URL")
+  
+  // FIX: The runtime URL *must* point to the connection pooler.
+  url      = env("DATABASE_URL")
+  
+  // FIX: This property is used *only* by the Prisma CLI for migrations.
+  directUrl = env("DIRECT_URL")
 }
+
+// (Rest of schema models...)
 
 // Links to your Clerk User
 model User {
